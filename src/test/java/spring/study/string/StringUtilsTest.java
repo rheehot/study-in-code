@@ -33,4 +33,16 @@ public class StringUtilsTest {
             Assertions.assertEquals("ABCD", StringUtils.remove(sample, "AD"));
         }
     }
+
+    @Nested
+    class SubString {
+        @Test
+        @DisplayName("""
+                subString("ABD", "ABD".length()) = ""
+                """)
+        void whenStartAtOverIndex_thenReturnEmptyString() {
+            String sample = "ABC";
+            Assertions.assertEquals("", StringUtils.substring(sample, sample.length()));
+        }
+    }
 }
