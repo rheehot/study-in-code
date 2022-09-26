@@ -5,14 +5,14 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class FunctionalInterfaceTest {
-
     @Nested
     class Parameterize{
         Person person = new Person();
+        String name = "JooSing";
 
         @Test
         void lambdaTest() {
-            Assertions.assertEquals("Hello! JooSing", person.hello(() -> "JooSing"));
+            Assertions.assertEquals("Hello! JooSing", person.hello(() -> name));
         }
 
         @Test
@@ -20,7 +20,7 @@ public class FunctionalInterfaceTest {
             Assertions.assertEquals("Hello! JooSing", person.hello(new Introduce() {
                 @Override
                 public String apply() {
-                    return "JooSing";
+                    return name;
                 }
             }));
         }
