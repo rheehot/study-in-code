@@ -7,14 +7,24 @@ import org.junit.jupiter.api.Test;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.time.Month;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Slf4j
-@DisplayName("Between")
-public class BetweenTest {
+@DisplayName("Duration")
+public class DurationTest {
+    @Test
+    @DisplayName("toMillis() : 두 LocalDateTime의 밀리초 차이를 반환합니다.")
+    void betweenToMillisTest() {
+        LocalDateTime sample1 = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, 56, TimeUtils.toNano(900));
+        LocalDateTime sample2 = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, 57, TimeUtils.toNano(0));
+        Duration between = Duration.between(sample1, sample2);
+        Assertions.assertEquals(100, between.toMillis());
+    }
+
     @Test
     @DisplayName("getNano() 메서드는 두 LocalDateTime 객체가 가지는 시간의 차이를 계산합니다. 나노초만 분리하여 비교하는 것이 아닙니다.")
     void betweenNanoTest() throws InterruptedException {

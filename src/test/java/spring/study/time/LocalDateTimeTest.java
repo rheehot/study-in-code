@@ -53,12 +53,9 @@ public class LocalDateTimeTest {
     @DisplayName("1.900(sec) plusNano 0.1(sec) = 2.000(sec)")
     void plusNanaTest() {
         int testSecond = 56;
-        LocalDateTime sample = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, testSecond, toNano(900));
-        Assertions.assertEquals(testSecond + 1, sample.plusNanos(toNano(100)).getSecond());
-        Assertions.assertEquals(toNano(0), sample.plusNanos(toNano(100)).getNano());
+        LocalDateTime sample = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, testSecond, TimeUtils.toNano(900));
+        Assertions.assertEquals(testSecond + 1, sample.plusNanos(TimeUtils.toNano(100)).getSecond());
+        Assertions.assertEquals(TimeUtils.toNano(0), sample.plusNanos(TimeUtils.toNano(100)).getNano());
     }
 
-    private int toNano(int millis) {
-        return millis * 1000 * 1000;
-    }
 }
