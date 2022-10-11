@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 public class DurationTest {
     @Test
     @DisplayName("toMillis() : 두 LocalDateTime의 밀리초 차이를 반환합니다.")
-    void betweenToMillisTest() {
+    void betweenToMillis() {
         LocalDateTime sample1 = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, 56, TimeUtils.toNano(900));
         LocalDateTime sample2 = LocalDateTime.of(2022, Month.AUGUST, 30, 12, 34, 57, TimeUtils.toNano(0));
         Duration between = Duration.between(sample1, sample2);
@@ -27,7 +27,7 @@ public class DurationTest {
 
     @Test
     @DisplayName("getNano() 메서드는 두 LocalDateTime 객체가 가지는 시간의 차이를 계산합니다. 나노초만 분리하여 비교하는 것이 아닙니다.")
-    void betweenNanoTest() throws InterruptedException {
+    void betweenNano() throws InterruptedException {
         final int intervalMsec = 100;
         final int marginMsec = 5;
         final int repeat = 10;
