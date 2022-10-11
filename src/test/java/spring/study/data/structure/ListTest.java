@@ -1,20 +1,90 @@
 package spring.study.data.structure;
 
 
-import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 
+@Slf4j
 public class ListTest {
 
-    @AllArgsConstructor
-    static
-    class Position implements Comparable<Position> {
+    @Test
+    @DisplayName("List.of() 메서드에 의해 생성된 List는 불변입니다.")
+    void listOfMakeImmutableList() {
+        List<String> list = List.of("a", "b", "c");
+        //noinspection ConstantConditions
+        Assertions.assertThrows(UnsupportedOperationException.class, () -> list.add("d"));
+    }
+
+    @Test
+    @DisplayName("List.copyOf() 메서드에 Immutable List를 넘기면 같은 인스턴스 List를 반환합니다.")
+    void copyOfImmutableList() {
+        List<Position> origin = List.of(new Position(11, 22), new Position(33, 44));
+        List<Position> copied = List.copyOf(origin);
+
+        Assertions.assertEquals(origin, copied);
+    }
+
+    @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
+    @Test
+    @DisplayName("addAll() 메서드를 사용하면 shadow copy가 일어납니다.")
+    void shadowCopy() {
+        // Given
+        List<Position> origin = new ArrayList<>();
+        origin.add(new Position(11, 22));
+        origin.add(new Position(33, 44));
+        List<Position> copied = new ArrayList<>();
+
+        // When
+        copied.addAll(origin);
+        // List<Position> copied = new ArrayList<>(origin); 동일한 결과
+        copied.get(0).setAzimuth(55);
+
+        // Then
+        Assertions.assertEquals(55, origin.get(0).getAzimuth());
+    }
+
+    @Test
+    @DisplayName("List deep copy를 직접 수행합니다.")
+    void deepCopy() {
+        // Given
+        List<Position> origin = new ArrayList<>();
+        origin.add(new Position(11, 22));
+        origin.add(new Position(33, 44));
+        List<Position> copied = new ArrayList<>();
+
+        // When
+        for (Position pos : origin) {
+            copied.add(new Position(pos));
+        }
+        copied.get(0).setAzimuth(55);
+
+        // Then
+        Assertions.assertNotEquals(55, origin.get(0).getAzimuth());
+        Assertions.assertEquals(11, origin.get(0).getAzimuth());
+    }
+
+    @Getter
+    @Setter
+    static class Position implements Comparable<Position> {
         int azimuth;
         int elevation;
 
+        public Position(int azimuth, int elevation) {
+            this.azimuth = azimuth;
+            this.elevation = elevation;
+        }
+
+        public Position(Position pos) {
+            this.azimuth = pos.getAzimuth();
+            this.elevation = pos.getElevation();
+        }
         @Override
         public int compareTo(Position o) {
             if (o == null) {
