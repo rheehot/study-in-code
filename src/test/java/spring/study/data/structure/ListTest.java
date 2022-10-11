@@ -23,6 +23,14 @@ public class ListTest {
     }
 
     @Test
+    @DisplayName("불변리스트이지만 각 항목이 가지는 값은 변경할 수 있습니다.")
+    void immutableListButItemChange() {
+        List<Position> list = List.of(new Position(11, 22), new Position(33, 44));
+        Assertions.assertDoesNotThrow(() -> list.get(0).setAzimuth(55));
+        Assertions.assertEquals(55, list.get(0).getAzimuth());
+    }
+
+    @Test
     @DisplayName("List.copyOf() 메서드에 Immutable List를 넘기면 같은 인스턴스 List를 반환합니다.")
     void copyOfImmutableList() {
         List<Position> origin = List.of(new Position(11, 22), new Position(33, 44));
