@@ -42,4 +42,13 @@ public class ReflectionTest {
         assertThat(methods[0].getName()).isEqualTo("hi");
         assertThat(methods[1].getName()).isEqualTo("hello");
     }
+
+    @Test
+    @DisplayName("Constructor.newInstance()를 통해 리플렉션으로 객체를 생성할 수 있다")
+    void newInstance() throws Exception {
+        SampleInterface sample =
+                (SampleInterface) Class.forName("spring.study.java.reflection.SampleClassImpl").getConstructor()
+                                       .newInstance();
+        assertThat(sample.hello("Joo")).isEqualTo("Hello Joo");
+    }
 }
