@@ -33,4 +33,13 @@ public class ReflectionTest {
         String ret = (String) helloMethod.invoke(implObject, "Joo");
         assertThat(ret).isEqualTo("Hello Joo");
     }
+
+    @Test
+    @DisplayName("getMethod() 는 public 메서드만 가져온다")
+    void whenGetMethods_thenGetAllPublicMethods() throws Exception {
+        Method[] methods = SampleInterface.class.getMethods();
+        assertThat(methods.length).isEqualTo(2);
+        assertThat(methods[0].getName()).isEqualTo("hi");
+        assertThat(methods[1].getName()).isEqualTo("hello");
+    }
 }
