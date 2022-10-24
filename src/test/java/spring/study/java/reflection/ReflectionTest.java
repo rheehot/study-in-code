@@ -1,11 +1,11 @@
 package spring.study.java.reflection;
 
-import static org.assertj.core.api.Assertions.assertThat;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Test;
 
 import java.lang.reflect.Method;
 
-import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Test;
+import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReflectionTest {
 
@@ -36,7 +36,7 @@ public class ReflectionTest {
 
     @Test
     @DisplayName("getMethod() 는 public 메서드만 가져온다")
-    void whenGetMethods_thenGetAllPublicMethods() throws Exception {
+    void whenGetMethods_thenGetAllPublicMethods() {
         Method[] methods = SampleInterface.class.getMethods();
         assertThat(methods.length).isEqualTo(2);
         assertThat(methods[0].getName()).isEqualTo("hi");
@@ -50,5 +50,19 @@ public class ReflectionTest {
                 (SampleInterface) Class.forName("spring.study.java.reflection.SampleClassImpl").getConstructor()
                                        .newInstance();
         assertThat(sample.hello("Joo")).isEqualTo("Hello Joo");
+    }
+
+    @Test
+    @DisplayName("리플렉션으로 static 메서드를 얻을 수 있다")
+    void getDeclaredStaticMethod() {
+        Method[] methods = SampleStaticClass.class.getDeclaredMethods();
+        assertThat(methods.length).isEqualTo(1);
+    }
+
+    @Test
+    @DisplayName("리플렉션으로 static 메서드를 호출할 수 있다")
+    void invokeStaticMethod() throws Exception {
+        Method hello = SampleStaticClass.class.getDeclaredMethod("hello", String.class);
+        assertThat(hello.invoke(null, "Joo")).isEqualTo("Hello Joo");
     }
 }
