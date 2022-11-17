@@ -33,7 +33,6 @@ public class JsonSerializeTest {
                 """.replaceAll("[\n ]", ""));
     }
 
-
     @RequiredArgsConstructor
     @Getter
     static class Compose {
