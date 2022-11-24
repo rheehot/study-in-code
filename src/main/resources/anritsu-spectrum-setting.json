@@ -1,0 +1,57 @@
+{
+  "channel1": {
+    "description": "S-Band TX",
+    "startFrequency": 10000000,
+    "endFrequency": 10000000,
+    "rbw": 30000,
+    "vbw": 10000,
+    "refLevel": -30,
+    "preamp": "OFF",
+    "points": 501,
+    "traceCount": 20
+  },
+  "channel2": {
+    "description": "S-Band RX RH",
+    "startFrequency": 10000000,
+    "endFrequency": 10000000,
+    "rbw": 30000,
+    "vbw": 10000,
+    "refLevel": -30,
+    "preamp": "OFF",
+    "points": 501,
+    "traceCount": 20
+  },
+  "channel3": {
+    "description": "S-Band RX LH",
+    "startFrequency": 10000000,
+    "endFrequency": 10000000,
+    "rbw": 30000,
+    "vbw": 10000,
+    "refLevel": -30,
+    "preamp": "OFF",
+    "points": 501,
+    "traceCount": 20
+  },
+  "channel4": {
+    "description": "X-Band RX RH",
+    "startFrequency": 10000000,
+    "endFrequency": 10000000,
+    "rbw": 30000,
+    "vbw": 10000,
+    "refLevel": -30,
+    "preamp": "OFF",
+    "points": 501,
+    "traceCount": 20
+  },
+  "channel5": {
+    "description": "X-Band RX LH",
+    "startFrequency": 10000000,
+    "endFrequency": 10000000,
+    "rbw": 30000,
+    "vbw": 10000,
+    "refLevel": -30,
+    "preamp": "OFF",
+    "points": 501,
+    "traceCount": 20
+  }
+}
