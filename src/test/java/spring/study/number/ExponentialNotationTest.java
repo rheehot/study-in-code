@@ -17,4 +17,12 @@ public class ExponentialNotationTest {
         Assertions.assertEquals(5000000000000L, expInt);
         Assertions.assertEquals(500000000, expNumber);
     }
+
+    @Test
+    void convertToExponential() {
+        double number = 595000000.0;
+        String expNumber = String.format("%.2e", number);
+        log.info("expNumber: {}", expNumber);
+        Assertions.assertEquals("5.95e+08", expNumber);
+    }
 }
