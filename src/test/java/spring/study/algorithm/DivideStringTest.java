@@ -10,8 +10,10 @@ import org.junit.jupiter.api.Test;
  * - 코드를 단계적으로 테스트 해나갈 필요가 있겠습니다.
  * - IDE의 자동완성 기능의 도움을 받을 수 없는 것이 익숙하지 않네요. 간단한 라이브러리 코드 타이핑이 익숙해 져야겠습니다
  *
+ * 3. 잘한점
+ * - 문제를 해결하기 위한 부분적인 단계의 반환 값을 구조체로 해결한 것은 잘한 것 같다.
  */
-public class Day1Test {
+public class DivideStringTest {
 
     @Test
     void testSolution() {
@@ -32,35 +34,32 @@ public class Day1Test {
         return divideCount;
     }
 
-    class DivideResult {
-        String divided;
-        String remained;
-    }
-
     DivideResult divide(String input) {
+        DivideResult result = new DivideResult();
         char x = input.charAt(0);
-        int xCount = 0;
-        int otherCount = 0;
+        int sameCount = 0;
+        int diffCount = 0;
         for (int i =0; i<input.length(); i++ ){
             if (input.charAt(i) == x) {
-                xCount ++;
+                sameCount ++;
             } else {
-                otherCount ++;
+                diffCount ++;
             }
 
-            if (xCount == otherCount) {
-                DivideResult result = new DivideResult();
-                result.divided = input.substring(0, i + 1); // 검증 필요
+            if (sameCount == diffCount) {
+                result.divided = input.substring(0, i + 1);
                 result.remained = input.substring(i + 1);
-                System.out.println("devide = " + result.divided);
-                System.out.println("reamain = " + result.remained);
                 return result;
             }
         }
 
-        DivideResult result = new DivideResult();
         result.divided = input;
         result.remained = "";
         return result;
+    }
+
+    static class DivideResult {
+        String divided;
+        String remained;
     }
 }
