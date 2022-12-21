@@ -14,20 +14,17 @@ public class NextNumberTest {
         Assertions.assertEquals(5, solution);
     }
 
-    /*
-    문제해결
-    - 우선 주어진 입력이 등차 수열인지, 등비 수열인지 판단합니다.
-    - 등차 또는 등비를 구합니다.
-    - 마지막 항목에서 등차 또는 등비를 사용해 해답을 구합니다.
-     */
     enum SequenceType {
         ARITHMETICAL, // 등차수열
         GEOMETRIC     // 등비수열
     }
 
     public int solution(int[] sequence) {
+        // 주어진 입력이 등차 수열인지, 등비 수열인지 판단합니다.
         SequenceType sequenceType = checkSequenceType(sequence);
+        // 등차 또는 등비를 구합니다.
         int regularParam = calculateRegularParam(sequence, sequenceType);
+        // 마지막 항목에서 등차 또는 등비를 사용해 해답을 구합니다.
         return getNextNum(sequence[sequence.length - 1], sequenceType, regularParam);
     }
 
