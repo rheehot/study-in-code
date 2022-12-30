@@ -1,4 +1,4 @@
-package spring.study.algorithm;
+package spring.study.solving;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

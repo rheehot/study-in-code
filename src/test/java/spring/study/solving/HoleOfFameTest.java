@@ -1,4 +1,4 @@
-package spring.study.algorithm;
+package spring.study.solving;
 
 import java.util.Comparator;
 import java.util.Map;

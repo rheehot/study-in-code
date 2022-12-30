@@ -1,4 +1,4 @@
-package spring.study.algorithm;
+package spring.study.solving;
 
 public class CompareDeepTest {
 }
