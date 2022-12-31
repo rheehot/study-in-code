@@ -1,7 +1,6 @@
 package spring.study.solving;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.stream.IntStream;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,22 +13,14 @@ public class SmallSubStringTest {
     }
 
     public int solution(String target, String sub) {
-        assert target.length() >= sub.length();
-        int subLen = sub.length();
-        long subNumber = Long.parseLong(sub);
-        List<Long> subNumbers = toSubNumbers(target, subLen);
-        return (int) subNumbers.stream()
-                               .filter(number -> number <= subNumber)
-                               .count();
-    }
+        assert sub.length() >= 1 && sub.length() <= 18;
+        assert target.length() >= sub.length() && target.length() <= 10000;
+        assert sub.charAt(0) != '0' && target.charAt(0) != '0';
 
-    private List<Long> toSubNumbers(String target, int subLen) {
-        List<Long> numbers = new ArrayList<>();
-
-        for (int start = 0; start + subLen <= target.length(); start++) {
-            Long number = Long.parseLong(target.substring(start, start + subLen));
-            numbers.add(number);
-        }
-        return numbers;
+        return (int) IntStream.range(0, target.length() - sub.length() + 1)
+                              .mapToObj(startIndex -> target.substring(startIndex, startIndex + sub.length()))
+                              .map(Long::parseLong)
+                              .filter(number -> number <= Long.parseLong(sub))
+                              .count();
     }
 }
