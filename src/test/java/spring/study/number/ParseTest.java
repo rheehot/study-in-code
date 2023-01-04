@@ -18,4 +18,11 @@ public class ParseTest {
         String sample = "123.123 ";
         Assertions.assertEquals(123.123, Double.parseDouble(sample));
     }
+
+    @Test
+    void parseByte() {
+        Assertions.assertEquals(0x7F, Byte.parseByte("7F", 16));
+        Assertions.assertThrows(NumberFormatException.class, () -> Byte.parseByte("FF", 16)); // Out of range (max : 0x7F)
+        Assertions.assertEquals(0xFF, Integer.parseInt("FF", 16));
+    }
 }
