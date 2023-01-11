@@ -22,7 +22,11 @@ public class ParseTest {
     @Test
     void parseByte() {
         Assertions.assertEquals(0x7F, Byte.parseByte("7F", 16));
+    }
+
+    @Test
+    void parseOutOfRangeError() {
         Assertions.assertThrows(NumberFormatException.class, () -> Byte.parseByte("FF", 16)); // Out of range (max : 0x7F)
-        Assertions.assertEquals(0xFF, Integer.parseInt("FF", 16));
+        Assertions.assertEquals(0xFF, Short.parseShort("FF", 16));
     }
 }
