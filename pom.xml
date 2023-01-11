@@ -173,7 +173,7 @@
 		<dependency>
 			<groupId>io.netty</groupId>
 			<artifactId>netty-all</artifactId>
-			<version>4.1.82.Final</version>
+			<version>4.1.86.Final</version>
 		</dependency>
 
 		<!-- TLE -->
@@ -187,7 +187,7 @@
 		<dependency>
 			<groupId>commons-net</groupId>
 			<artifactId>commons-net</artifactId>
-			<version>20030805.205232</version>
+			<version>3.8.0</version>
 		</dependency>
 
 		<!-- Queue Monitoring -->
