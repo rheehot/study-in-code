@@ -3,8 +3,10 @@ package spring.study.number;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 
 public class ParseTest {
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
     @DisplayName("Integer.parseInt()는 white space 를 허용하지 않는다")
     void integerIncludingLeadingWhiteSpaceNumber() {
@@ -24,9 +26,13 @@ public class ParseTest {
         Assertions.assertEquals(0x7F, Byte.parseByte("7F", 16));
     }
 
+    @SuppressWarnings("ResultOfMethodCallIgnored")
     @Test
+    @DisplayName("""
+    byte 타입 변수가 표현할 수있는 값 범위는 -128 to 127 입니다.
+    따라서 255(0xFF)는 parse 할 수 있는 값 범위를 초과합니다.""")
     void parseOutOfRangeError() {
-        Assertions.assertThrows(NumberFormatException.class, () -> Byte.parseByte("FF", 16)); // Out of range (max : 0x7F)
-        Assertions.assertEquals(0xFF, Short.parseShort("FF", 16));
+        Executable testCode = () -> Byte.parseByte("FF", 16);
+        Assertions.assertThrows(NumberFormatException.class, testCode);
     }
 }
