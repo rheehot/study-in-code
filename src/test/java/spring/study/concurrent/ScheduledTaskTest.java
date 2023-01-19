@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 @Slf4j
 public class ScheduledTaskTest {
     @Test
-    void cancelTest() throws InterruptedException {
+    void cancelScheduledExecutor() throws InterruptedException {
         // Given
         ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -25,4 +25,6 @@ public class ScheduledTaskTest {
         Assertions.assertTrue(future.isDone());
         Thread.sleep(3000);
     }
+
+
 }
