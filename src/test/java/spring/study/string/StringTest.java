@@ -23,6 +23,13 @@ public class StringTest {
     @Nested
     @DisplayName("Split")
     class Split {
+
+        @SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
+        @Test
+        void splitEachChar() {
+            Assertions.assertArrayEquals(new String[]{"A","B"}, "AB".split(""));
+        }
+
         @Test
         @DisplayName("""
                 "123,456,789".split(",") returns "123", "456", "789"\040""")
