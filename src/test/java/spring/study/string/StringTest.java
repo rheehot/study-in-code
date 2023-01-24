@@ -1,11 +1,21 @@
 package spring.study.string;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 public class StringTest {
+
+    @Test
+    void sortStringArray() {
+        String[] array = { "A", "C", "B" };
+        List<String> strings = Arrays.stream(array).sorted().toList();
+        Assertions.assertArrayEquals(new String[]{"A", "B", "C"}, strings.toArray());
+    }
 
     @Nested
     @DisplayName("Replace")
