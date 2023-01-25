@@ -2,108 +2,101 @@ package spring.study.solving;
 
 import java.util.HashMap;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
-
+@SuppressWarnings("DynamicRegexReplaceableByCompiledPattern")
 public class PersonalTypeTest {
 
-    @Test
-    void testSolution() {
-        String result = solution(new String[]{"TR", "RT", "TR"},
-                              new int[]{7, 1, 3});
-        Assertions.assertEquals("RCJA", result);
+    static Stream<Arguments> testCaseSupplier() {
+        return Stream.of(
+                Arguments.arguments(new String[] {"AN", "CF", "MJ", "RT", "NA"}, new int[] {5, 3, 2, 7, 5}, "TCMA"),
+                Arguments.arguments(new String[] {"TR", "RT", "TR"}, new int[] {7, 1, 3}, "RCJA"),
+                Arguments.arguments(new String[] {"TR", "RT", "AN", "NA", "MJ", "JM"}, new int[] {7, 7, 1, 1, 3, 3}, "RCJA")
+        );
     }
 
-    enum ChoiceType {
-        POSITIVE, NONE, NEGATIVE
+    @ParameterizedTest
+    @MethodSource("testCaseSupplier")
+    void testSolution(String[] survey, int[] choices, String expected) {
+        String result = solution(survey, choices);
+        Assertions.assertEquals(expected, result);
     }
 
-    /**
-     * N개의 질문 각각이 조사하는 두 가지 성격 유형을 문자열 배열로 주어집니다. 그리고 그에 대한 설문자의 답변이 1~7번까지 주어집니다.
-     * 이 때 질문자의 성격 유형(유형에는 번호가 부여되어 있음)을 번호 순서대로 결정하여 반환합니다. 한 지표에서 두 가지 성격 유형이
-     * 동점인 경우에는 사전 순으로 빠른 유형을 선택합니다.
-     */
+    // 응답자는 어떤 질문에 대해 1~7번 답을 선택합니다. 질문은 예를 들면 AB 두 유형 중 어느 유형에 가까운지를 검사합니다.
+    // 1~3번은 A에 가까운 정도를 나타내며, 5~7번은 B에 가까운 정도를 나타냅니다.
+    // 1번으로 갈수록 A에 매우 가까운 정도이며, 7번으로 갈 수록 B에 매우 가까운 정도를 나타냅니다.
+    // AB 두 유형이 획득한 점수가 동점인 경우 A,B중 알파벳 순서에 앞서는 유형이 선택됩니다.
     public String solution(String[] survey, int[] choices) {
-        HashMap<Character, Integer> database = new HashMap<>();
+        HashMap<String, Integer> scoreSheet = new HashMap<>(); // Key: 성격 유형, Value: 획득한 점수
+        initSheet(scoreSheet);
 
-        // 각 질문지가 조사하는 두 성격 유형에 대한 조사자의 답변 데이터를 수집합니다.
-        IntStream.range(0, survey.length)
-                .forEach(i -> {
-                    int choiceScore = choices[i];
-                    ChoiceType choiceType = matchChoiceType(choiceScore);
-                    String twoSurveyType = survey[i];
-                    Optional<Character> matchedType = matchPersonalType(twoSurveyType, choiceType);
-                    int score = matchChoiceScore(choiceScore);
-                    matchedType.ifPresent( type -> {
-                        Integer prevScore = database.get(matchedType.get());
-                        if (prevScore == null) {
-                            prevScore = 0;
-                        }
-                        database.put(matchedType.get(), prevScore + score);
-                    });
-                });
+        // 각 유형 별로 획득한 점수를 집계합니다.
+        IntStream.range(0, survey.length).forEach(i -> {
+            String[] twoIndicators = survey[i].split("");
+            Optional<String> indicator = relatedIndicator(choices[i], twoIndicators);
+            int score = mappedScore(choices[i]);
 
-        // 데이터로부터 1~4번 지표의 성격 유형을 판단합니다.
-        StringBuilder answer = new StringBuilder();
-        Stream.of("RT", "CF", "JM", "AN")
-              .map(twoTypeAlphabetic -> toSelectedType(database, twoTypeAlphabetic))
-              .forEach(answer::append);
+            if (indicator.isPresent()) {
+                Integer sumOfScore = scoreSheet.get(indicator.get());
+                sumOfScore += score;
+                scoreSheet.put(indicator.get(), sumOfScore);
+            }
+        });
 
-        return answer.toString();
+        // 집계한 데이터로부터 1~4번 지표의 성격 유형을 결정합니다.
+        String[][] personalityTypes = { { "R", "T" }, { "C", "F" }, { "J", "M" }, { "A", "N" }};
+        return Stream.of(personalityTypes)
+                     .map(candidates -> selectPersonalityWithHighScore(candidates, scoreSheet))
+                     .collect(Collectors.joining());
     }
 
-    private Character toSelectedType(HashMap<Character, Integer> database, String twoTypeAlphabetic){
-        Integer firstScore = database.get(twoTypeAlphabetic.charAt(0));
-        Integer secondScore = database.get(twoTypeAlphabetic.charAt(1));
-        if (firstScore == null && secondScore == null) {
-            return twoTypeAlphabetic.charAt(0);
-        }
-        if (firstScore == null) {
-            return twoTypeAlphabetic.charAt(1);
-        }
-        if (secondScore == null) {
-            return twoTypeAlphabetic.charAt(0);
-        }
-        if (firstScore >= secondScore) {
-            return twoTypeAlphabetic.charAt(0);
-        } else {
-            return twoTypeAlphabetic.charAt(1);
-        }
+    private void initSheet(HashMap<String,Integer> database) {
+        database.put("R", 0);
+        database.put("T", 0);
+        database.put("C", 0);
+        database.put("F", 0);
+        database.put("J", 0);
+        database.put("M", 0);
+        database.put("A", 0);
+        database.put("N", 0);
     }
 
-    private int matchChoiceScore(int selection) {
-        HashMap<Integer, Integer> database = new HashMap<>();
-        database.put(7, 3);
-        database.put(6, 2);
-        database.put(5, 1);
-        database.put(4, 0);
-        database.put(3, 1);
-        database.put(2, 2);
-        database.put(1, 3);
-        return database.get(selection);
-    }
-
-    private ChoiceType matchChoiceType(int selection) {
-        if (selection >= 1 && selection <= 3) {
-            return ChoiceType.NEGATIVE;
-        } else if (selection >= 5 && selection <= 7) {
-            return ChoiceType.POSITIVE;
-        } else {
-            return ChoiceType.NONE;
-        }
-    }
-
-    private Optional<Character> matchPersonalType(String twoSurveyType, ChoiceType choiceType) {
-        if (choiceType == ChoiceType.NEGATIVE) {
-            return Optional.of(twoSurveyType.charAt(0));
-        } else if (choiceType == ChoiceType.POSITIVE) {
-            return Optional.of(twoSurveyType.charAt(1));
+    private Optional<String> relatedIndicator(int choice, String[] indicators) {
+        if (choice >= 1 && choice <= 3) {
+            return Optional.of(indicators[0]);
+        } else if (choice >= 5 && choice <= 7) {
+            return Optional.of(indicators[1]);
         } else {
             return Optional.empty();
         }
+    }
+
+    private int mappedScore(int choice) {
+        int[] scores = { -1, 3, 2, 1, 0, 1, 2, 3 };
+        return scores[choice];
+    }
+
+    private String selectPersonalityWithHighScore(String[] candidates, HashMap<String, Integer> scoreSheet) {
+        Integer score0 = scoreSheet.get(candidates[0]);
+        Integer score1 = scoreSheet.get(candidates[1]);
+
+        if (score0 > score1) {
+            return candidates[0];
+        } else if (score0 < score1) {
+            return candidates[1];
+        } else {
+            return getPrecedingAlphabet(candidates[0], candidates[1]);
+        }
+    }
+
+    private String getPrecedingAlphabet(String str1, String str2) {
+        return str1.compareTo(str2) > 0 ? str2 : str1;
     }
 }
