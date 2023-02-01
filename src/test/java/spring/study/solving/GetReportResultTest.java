@@ -1,8 +1,8 @@
 package spring.study.solving;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -48,18 +48,16 @@ public class GetReportResultTest {
      */
     public int[] solution(String[] users, String[] report, int dropOutNum) {
         // 각 사용자를 신고한 사람 목록을 중복을 제외하고 수집합니다.
-        HashMap<String, List<String>> userAndReportersMap = new HashMap<>();
+        HashMap<String, Set<String>> userAndReportersMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> userAndReportersMap.put(users[i], new ArrayList<>()));
+                 .forEach(i -> userAndReportersMap.put(users[i], new HashSet<>()));
 
         IntStream.range(0, report.length).forEach(i -> {
             String[] reporterAndTargetUser = report[i].split(" ");
             String reporter = reporterAndTargetUser[0];
             String targetUser = reporterAndTargetUser[1];
-            List<String> reporters = userAndReportersMap.get(targetUser);
-            if (!reporters.contains(reporter)) {
-                reporters.add(reporter);
-            }
+            Set<String> reporters = userAndReportersMap.get(targetUser);
+            reporters.add(reporter);
         });
 
         // 각 사용자의 사용중지될 사용자 신고 횟수를 카운트 합니다.
