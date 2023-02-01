@@ -1,8 +1,8 @@
 package spring.study.solving;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
@@ -28,10 +28,6 @@ public class GetReportResultTest {
         );
     }
 
-    /*
-     # 문제점
-     - 비지니스 로직이 코드에 모두 반영되었는지 확인이 잘 되지 않고 있다.
-     */
     @ParameterizedTest
     @MethodSource("testCaseSupplier")
     void testSolution(String[] idList, String[] report, int k, int[] expected) {
@@ -47,39 +43,37 @@ public class GetReportResultTest {
      * @return 사용정지된 사용자를 신고한 횟수
      */
     public int[] solution(String[] users, String[] report, int dropOutNum) {
-        // 사용자 별로 자신을 신고한 자신 외의 다른 사용자 목록을 수집합니다.
-        HashMap<String, List<String>> userAndReportersMap = new HashMap<>();
+        // 각 사용자를 신고한 사람 목록을 중복을 제외하고 수집합니다.
+        HashMap<String, Set<String>> userAndReportersMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> userAndReportersMap.put(users[i], new ArrayList<>()));
+                 .forEach(i -> userAndReportersMap.put(users[i], new HashSet<>()));
 
         IntStream.range(0, report.length).forEach(i -> {
             String[] reporterAndTargetUser = report[i].split(" ");
             String reporter = reporterAndTargetUser[0];
             String targetUser = reporterAndTargetUser[1];
-            List<String> reporters = userAndReportersMap.get(targetUser);
-            if (!reporters.contains(reporter)) {
-                reporters.add(reporter);
-            }
+            Set<String> reporters = userAndReportersMap.get(targetUser);
+            reporters.add(reporter);
         });
 
-        // 사용자 별로 신고한 사용자가 사용 중지된 경우의 수를 모두 더합니다.
-        HashMap<String, Integer> reporterAndAlarmNumMap = new HashMap<>();
+        // 각 사용자의 사용중지될 사용자 신고 횟수를 카운트 합니다.
+        HashMap<String, Integer> reporterAndAlarmCountMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> reporterAndAlarmNumMap.put(users[i], 0));
+                 .forEach(i -> reporterAndAlarmCountMap.put(users[i], 0));
         userAndReportersMap.forEach( (user, reporters) -> {
             if (reporters.size() >= dropOutNum) {
                 reporters.forEach(reporter -> {
-                    int alarmNum = reporterAndAlarmNumMap.get(reporter);
+                    int alarmNum = reporterAndAlarmCountMap.get(reporter);
                     alarmNum++;
-                    reporterAndAlarmNumMap.put(reporter, alarmNum);
+                    reporterAndAlarmCountMap.put(reporter, alarmNum);
                 });
             }
         });
 
-        // 사용자 별로 사용정지된 사용자를 신고한 횟수를 정수 배열로 반환합니다.
+        // 약속된 정수 배열로 반환합니다.
         int[] alarmNums = new int[users.length];
         IntStream.range(0, users.length)
-                 .forEach(i -> alarmNums[i] = reporterAndAlarmNumMap.get(users[i]));
+                 .forEach(i -> alarmNums[i] = reporterAndAlarmCountMap.get(users[i]));
 
         return alarmNums;
     }
