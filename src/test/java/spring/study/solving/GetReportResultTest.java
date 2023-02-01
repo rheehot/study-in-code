@@ -40,48 +40,46 @@ public class GetReportResultTest {
     }
 
     /**
-     * 게시판의 사용자 목록(ID)과 신고 정보 목록 그리고 사용정지에 해당하는 신고횟수를 입력 받아서 각 사용자 별 신고 결과 알림을
-     * 받는 횟수를 반환합니다.
+     * 게시판의 사용자 목록(ID)과 신고 정보 목록 그리고 사용정지에 해당하는 신고횟수를 입력 받아서 각 사용자 별 신고 결과 알림을 받는 횟수를 반환합니다.
      * @param users 사용자 목록
      * @param report "A B"인 경우 A가 B를 신고한 정보를 뜻합니다. 신고 정보가 중복되는 경우 사용정지를 위한 통계에 포함시키지 않습니다. 자신이 자기를 신고하는 경우는 없습니다.
      * @param dropOutNum 해당 숫자 이상 신고를 받은 사용자는 사용정지 대상이 됩니다.
      * @return 사용정지된 사용자를 신고한 횟수
      */
     public int[] solution(String[] users, String[] report, int dropOutNum) {
-        // "A B" (A가 B를 신고) 형식의 리포트를 분석해서 누가, 누구를 신고했는지 정보를 모읍니다.
-        // 사용자 별로 자신을 신고한 다른 사용자 목록을 알고 있어야 합니다.
-        HashMap<String, List<String>> myReportUserMap = new HashMap<>();
+        // 사용자 별로 자신을 신고한 자신 외의 다른 사용자 목록을 수집합니다.
+        HashMap<String, List<String>> userAndReportersMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> myReportUserMap.put(users[i], new ArrayList<>()));
+                 .forEach(i -> userAndReportersMap.put(users[i], new ArrayList<>()));
 
-        IntStream.range(0, report.length)
-                .forEach(i -> {
-                    String[] aReportB = report[i].split(" ");
-                    List<String> myReportUser = myReportUserMap.get(aReportB[1]);
-                    if (!myReportUser.contains(aReportB[0])) {
-                        myReportUser.add(aReportB[0]);
-                    }
-                });
+        IntStream.range(0, report.length).forEach(i -> {
+            String[] reporterAndTargetUser = report[i].split(" ");
+            String reporter = reporterAndTargetUser[0];
+            String targetUser = reporterAndTargetUser[1];
+            List<String> reporters = userAndReportersMap.get(targetUser);
+            if (!reporters.contains(reporter)) {
+                reporters.add(reporter);
+            }
+        });
 
-        // 결국 사용 중지 당한 사용자를 신고한 사람을 카운팅 해야합니다.
-        HashMap<String, Integer> alarmNumMap = new HashMap<>();
+        // 사용자 별로 신고한 사용자가 사용 중지된 경우의 수를 모두 더합니다.
+        HashMap<String, Integer> reporterAndAlarmNumMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> alarmNumMap.put(users[i], 0));
-
-        myReportUserMap.forEach( (user, myReportUsers) -> {
-            if (myReportUsers.size() >= dropOutNum) {
-                myReportUsers.forEach(reportUser -> {
-                    int alarmNum = alarmNumMap.get(reportUser);
+                 .forEach(i -> reporterAndAlarmNumMap.put(users[i], 0));
+        userAndReportersMap.forEach( (user, reporters) -> {
+            if (reporters.size() >= dropOutNum) {
+                reporters.forEach(reporter -> {
+                    int alarmNum = reporterAndAlarmNumMap.get(reporter);
                     alarmNum++;
-                    alarmNumMap.put(reportUser, alarmNum);
+                    reporterAndAlarmNumMap.put(reporter, alarmNum);
                 });
             }
         });
 
-        // 최종적으로 사용자 별로 사용정지된 사용자를 신고한 횟수를 반환합니다.
+        // 사용자 별로 사용정지된 사용자를 신고한 횟수를 정수 배열로 반환합니다.
         int[] alarmNums = new int[users.length];
         IntStream.range(0, users.length)
-                 .forEach(i -> alarmNums[i] = alarmNumMap.get(users[i]));
+                 .forEach(i -> alarmNums[i] = reporterAndAlarmNumMap.get(users[i]));
 
         return alarmNums;
     }
