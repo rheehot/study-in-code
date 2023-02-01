@@ -61,15 +61,15 @@ public class GetReportResultTest {
         });
 
         // 각 사용자의 사용중지될 사용자 신고 횟수를 카운트 합니다.
-        HashMap<String, Integer> reporterAndAlarmNumMap = new HashMap<>();
+        HashMap<String, Integer> reporterAndAlarmCountMap = new HashMap<>();
         IntStream.range(0, users.length)
-                 .forEach(i -> reporterAndAlarmNumMap.put(users[i], 0));
+                 .forEach(i -> reporterAndAlarmCountMap.put(users[i], 0));
         userAndReportersMap.forEach( (user, reporters) -> {
             if (reporters.size() >= dropOutNum) {
                 reporters.forEach(reporter -> {
-                    int alarmNum = reporterAndAlarmNumMap.get(reporter);
+                    int alarmNum = reporterAndAlarmCountMap.get(reporter);
                     alarmNum++;
-                    reporterAndAlarmNumMap.put(reporter, alarmNum);
+                    reporterAndAlarmCountMap.put(reporter, alarmNum);
                 });
             }
         });
@@ -77,7 +77,7 @@ public class GetReportResultTest {
         // 약속된 정수 배열로 반환합니다.
         int[] alarmNums = new int[users.length];
         IntStream.range(0, users.length)
-                 .forEach(i -> alarmNums[i] = reporterAndAlarmNumMap.get(users[i]));
+                 .forEach(i -> alarmNums[i] = reporterAndAlarmCountMap.get(users[i]));
 
         return alarmNums;
     }
