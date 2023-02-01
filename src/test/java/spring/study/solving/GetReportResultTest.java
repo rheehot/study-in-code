@@ -28,10 +28,6 @@ public class GetReportResultTest {
         );
     }
 
-    /*
-     # 문제점
-     - 비지니스 로직이 코드에 모두 반영되었는지 확인이 잘 되지 않고 있다.
-     */
     @ParameterizedTest
     @MethodSource("testCaseSupplier")
     void testSolution(String[] idList, String[] report, int k, int[] expected) {
