@@ -16,11 +16,9 @@ public class StatusUpdater extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if (msg instanceof RunningStatus runningStatus) { // 장비 구동 상태
-            deviceStatus.setAngle(runningStatus.getAngle());
-            deviceStatus.setVelocity(runningStatus.getVelocity());
+            runningStatus.updateTo(deviceStatus);
         } else if (msg instanceof VersionStatus versionStatus) { // 장비 버전 정보
-            deviceStatus.setName(versionStatus.getName());
-            deviceStatus.setVersion(versionStatus.getVersion());
+            versionStatus.updateTo(deviceStatus);
         } else {
             assert false;
         }
