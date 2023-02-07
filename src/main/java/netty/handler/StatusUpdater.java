@@ -14,5 +14,6 @@ public class StatusUpdater extends SimpleChannelInboundHandler<StatusUpdatable> 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, StatusUpdatable msg) throws Exception {
         msg.updateTo(totalStatus);
+        ctx.fireChannelRead(msg);
     }
 }
