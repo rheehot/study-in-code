@@ -1,15 +1,17 @@
 package netty.message;
 
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import netty.handler.LogFactory;
+import netty.handler.LogSource;
 import netty.handler.StatusUpdatable;
 import netty.status.TotalStatus;
 
 // 장비 구동 상태
 @Getter
 @RequiredArgsConstructor
-public class PartialStatus implements StatusUpdatable, LogFactory {
+@EqualsAndHashCode
+public class PartialStatus implements StatusUpdatable, LogSource {
     private final int angle;
     private final double velocity;
 
@@ -20,7 +22,7 @@ public class PartialStatus implements StatusUpdatable, LogFactory {
     }
 
     @Override
-    public String toLogMessage() {
+    public String toMessage() {
         return String.format("angle : %d, velocity : %f", angle, velocity);
     }
 }

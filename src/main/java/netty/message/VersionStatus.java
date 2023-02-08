@@ -2,14 +2,14 @@ package netty.message;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import netty.handler.LogFactory;
+import netty.handler.LogSource;
 import netty.handler.StatusUpdatable;
 import netty.status.TotalStatus;
 
 // 장비 버전 정보
 @Getter
 @RequiredArgsConstructor
-public class VersionStatus implements StatusUpdatable, LogFactory {
+public class VersionStatus implements StatusUpdatable, LogSource {
     private final String name;
     private final String version;
 
@@ -20,7 +20,7 @@ public class VersionStatus implements StatusUpdatable, LogFactory {
     }
 
     @Override
-    public String toLogMessage() {
+    public String toMessage() {
         return String.format("name : %s, version : %s", name, version);
     }
 }

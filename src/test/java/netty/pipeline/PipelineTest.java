@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import io.netty.channel.embedded.EmbeddedChannel;
 import netty.handler.Logger;
 import netty.handler.StatusUpdater;
+import netty.log.ConsoleLog;
 import netty.message.PartialStatus;
 import netty.status.TotalStatus;
 
@@ -19,7 +20,7 @@ public class PipelineTest {
         EmbeddedChannel channel = new EmbeddedChannel();
         channel.pipeline()
                .addLast(new StatusUpdater(totalStatus))
-               .addLast(new Logger());
+               .addLast(new Logger(new ConsoleLog()));
 
         // When : 부분 상태 메시지를 채널 입력으로 쓰기
         channel.writeInbound(new PartialStatus(10, 100.0));
