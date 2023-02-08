@@ -4,7 +4,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import netty.handler.LogFactory;
 import netty.handler.StatusUpdatable;
-import netty.status.DeviceStatus;
+import netty.status.TotalStatus;
 
 // 장비 버전 정보
 @Getter
@@ -14,7 +14,7 @@ public class VersionStatus implements StatusUpdatable, LogFactory {
     private final String version;
 
     @Override
-    public void updateTo(DeviceStatus totalStatus) {
+    public void updateTo(TotalStatus totalStatus) {
         totalStatus.setName(name);
         totalStatus.setVersion(version);
     }
