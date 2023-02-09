@@ -8,11 +8,11 @@
 		<version>2.4.1</version>
 		<relativePath/>
 	</parent>
-	<groupId>spring</groupId>
-	<artifactId>study</artifactId>
+	<groupId>study</groupId>
+	<artifactId>code</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>study</name>
-	<description>Hello</description>
+	<description>hello</description>
 	<properties>
 		<maven.compiler.source>16</maven.compiler.source>
 		<maven.compiler.target>16</maven.compiler.target>
