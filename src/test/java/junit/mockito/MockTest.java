@@ -8,6 +8,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
@@ -125,14 +127,9 @@ public class MockTest extends MockitoBaseTest {
     void mock_verify_with_timeout() {
         // When
         Message message = new Message("A", 1);
-        CompletableFuture.runAsync(() -> {
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-            collaborator.consume(message);
-        });
+
+        Executor delayedExecutor = CompletableFuture.delayedExecutor(1000, TimeUnit.MILLISECONDS);
+        delayedExecutor.execute(() -> collaborator.consume(message));
 
         // Then
         verify(collaborator, timeout(10000).times(1)).consume(message);
