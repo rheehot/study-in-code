@@ -24,22 +24,35 @@ public class AssertUntilTimeout {
      * @throws AssertionError if the code under test throws an exception or returns {@code false}
      */
     public static void assertUntilTimeout(Duration timeout, ThrowingSupplier<Boolean> assertOnce, Supplier<String> messageSupplier) {
+        if (!tryUntilTimeout(timeout, assertOnce)) {
+            AssertionFailureBuilder.assertionFailure()
+                                   .message(messageSupplier)
+                                   .reason("execution exceeded timeout of " + timeout.toMillis() + " ms")
+                                   .buildAndThrow();
+        }
+    }
+
+    /**
+     * Try that the supplied {@code assertOnce} returns {@code true} within the
+     * given {@code timeout}.
+     *
+     * @param timeout the maximum time in milliseconds the code under test is allowed to run
+     * @param assertOnce the code under test
+     * @throws AssertionError if the code under test throws an exception or returns {@code false}
+     */
+    private static boolean tryUntilTimeout(Duration timeout, ThrowingSupplier<Boolean> assertOnce) {
         long timeoutMillis = timeout.toMillis();
         long startMillis = System.currentTimeMillis();
         while (System.currentTimeMillis() - startMillis < timeoutMillis) {
             try {
                 if (assertOnce.get()) {
-                    return;
+                    return true;
                 }
             } catch (Throwable ex) {
                 throwAsUncheckedException(ex);
             }
         }
-
-        AssertionFailureBuilder.assertionFailure()
-                               .message(messageSupplier)
-                               .reason("execution exceeded timeout of " + timeoutMillis + " ms")
-                               .buildAndThrow();
+        return false;
     }
 
 }
