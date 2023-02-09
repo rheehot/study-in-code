@@ -1,7 +1,7 @@
 package netty.handler;
 
-import netty.status.DeviceStatus;
+import netty.status.TotalStatus;
 
 public interface StatusUpdatable {
-    void updateTo(DeviceStatus totalStatus);
+    void updateTo(TotalStatus totalStatus);
 }
