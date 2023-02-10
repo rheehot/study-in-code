@@ -12,23 +12,23 @@ import junit.library.AssertUntilTimeout;
 import junit.library.TryUntilTimeout;
 
 public class AssertUntilTimeoutTest {
-    Controller controller;
+    FakeController fakeController;
 
     @BeforeEach
     void setUp() {
-        controller = new Controller();
-        controller.connect();
+        fakeController = new FakeController();
+        fakeController.connect();
     }
 
     @Test
     void statusReflectsCommandedValue() {
         // When : send a command to change target value
-        controller.sendCommand(100);
+        fakeController.sendCommand(100);
 
         // Then : The status reflects the commanded value
         long startMillis = System.currentTimeMillis();
         while (System.currentTimeMillis() - startMillis < 2000) {
-            if (controller.readStatus() == 100) {
+            if (fakeController.readStatus() == 100) {
                 // success
                 return;
             }
@@ -41,24 +41,24 @@ public class AssertUntilTimeoutTest {
     @Test
     void statusReflectsCommandedValue_ours() {
         // When : send a command to change target value
-        controller.sendCommand(100);
+        fakeController.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
         AssertUntilTimeout.assertUntilTimeout(ofMillis(2000), // timeout
-                                              () -> controller.readStatus() == 100, // assertOnce
-                                              () -> "status : " + controller.readStatus() // message on failure
+                                              () -> fakeController.readStatus() == 100, // assertOnce
+                                              () -> "status : " + fakeController.readStatus() // message on failure
         );
     }
 
     @Test
     void statusReflectsCommandedValue_ours2() {
         // When : send a command to change target value
-        controller.sendCommand(100);
+        fakeController.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
-        boolean result = TryUntilTimeout.work(() -> controller.readStatus() == 100, // tryOnce
+        boolean result = TryUntilTimeout.work(() -> fakeController.readStatus() == 100, // tryOnce
                                               2000, // timeout
-                                              () -> "status : " + controller.readStatus() // message on failure
+                                              () -> "status : " + fakeController.readStatus() // message on failure
         );
         Assertions.assertTrue(result);
     }
@@ -66,25 +66,25 @@ public class AssertUntilTimeoutTest {
     @Test
     void statusReflectsCommandedValue_junit() {
         // When : send a command to change target value
-        controller.sendCommand(100);
+        fakeController.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
         Assertions.assertTimeoutPreemptively(ofMillis(2000), // timeout
                                              () -> {
-                                                 while (controller.readStatus() != 100) {
+                                                 while (fakeController.readStatus() != 100) {
                                                      // sleep if needed
                                                  }
-                                             }, () -> "status : " + controller.readStatus() // message on failure
+                                             }, () -> "status : " + fakeController.readStatus() // message on failure
         );
     }
 
     @Test
     void statusReflectsCommandedValue_awaitility() {
         // When : send a command to change target value
-        controller.sendCommand(100);
+        fakeController.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
-        await().atMost(2, SECONDS).until(() -> controller.readStatus() == 100);
-        Assertions.assertEquals(100, controller.readStatus());
+        await().atMost(2, SECONDS).until(() -> fakeController.readStatus() == 100);
+        Assertions.assertEquals(100, fakeController.readStatus());
     }
 }
