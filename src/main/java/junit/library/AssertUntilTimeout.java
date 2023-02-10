@@ -6,7 +6,8 @@ import java.time.Duration;
 import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AssertionFailureBuilder;
-import org.junit.jupiter.api.function.ThrowingSupplier;
+
+import junit.library.funtional.ThrowingBooleanSupplier;
 
 @SuppressWarnings({ "ClassWithOnlyPrivateConstructors", "NonFinalUtilityClass" })
 public class AssertUntilTimeout {
@@ -18,7 +19,7 @@ public class AssertUntilTimeout {
      * @param assertOnce the code under test
      * @throws AssertionError if the code under test throws an exception or returns {@code false}
      */
-    public static void assertUntilTimeout(Duration timeout, ThrowingSupplier<Boolean> assertOnce, Supplier<String> messageSupplier) {
+    public static void assertUntilTimeout(Duration timeout, ThrowingBooleanSupplier assertOnce, Supplier<String> messageSupplier) {
         if (!tryUntilTimeout(timeout, assertOnce)) {
             buildAndThrowAssertionFailure(timeout, messageSupplier);
         }
@@ -32,7 +33,7 @@ public class AssertUntilTimeout {
      * @param assertOnce the code under test
      * @throws AssertionError if the code under test throws an exception or returns {@code false}
      */
-    private static boolean tryUntilTimeout(Duration timeout, ThrowingSupplier<Boolean> assertOnce) {
+    private static boolean tryUntilTimeout(Duration timeout, ThrowingBooleanSupplier assertOnce) {
         long timeoutMillis = timeout.toMillis();
         long startMillis = System.currentTimeMillis();
         while (System.currentTimeMillis() - startMillis < timeoutMillis) {
