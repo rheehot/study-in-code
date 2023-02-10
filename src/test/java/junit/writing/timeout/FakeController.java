@@ -17,7 +17,7 @@ class FakeController {
     void sendCommand(int value) {
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(3000);
+                Thread.sleep(1);
                 this.value = value;
             } catch (InterruptedException e) {
                 e.printStackTrace();
