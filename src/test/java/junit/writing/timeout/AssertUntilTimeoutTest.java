@@ -41,9 +41,10 @@ public class AssertUntilTimeoutTest {
         controller.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
-        AssertUntilTimeout.assertUntilTimeout(ofMillis(2000),
-                                              () -> controller.readStatus() == 100,
-                                              () -> "status : " + controller.readStatus());
+        AssertUntilTimeout.assertUntilTimeout(ofMillis(2000), // timeout
+                                              () -> controller.readStatus() == 100, // assertOnce
+                                              () -> "status : " + controller.readStatus() // message on failure
+        );
     }
 
     @Test
@@ -52,11 +53,11 @@ public class AssertUntilTimeoutTest {
         controller.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
-        Assertions.assertTimeoutPreemptively(ofMillis(2000),
+        Assertions.assertTimeoutPreemptively(ofMillis(2000), // timeout
                                              () -> {
-                                                 while (controller.readStatus() != 100) {
-                                                     // sleep if needed
-                                                 }
-                                             }, () -> "status : " + controller.readStatus());
+                                                 while (controller.readStatus() != 100); // executable
+                                             }, () -> "status : " + controller.readStatus() // message on failure
+
+        );
     }
 }
