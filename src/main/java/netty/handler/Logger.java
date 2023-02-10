@@ -13,7 +13,7 @@ public class Logger extends SimpleChannelInboundHandler<LogSource> {
     // 수신한 메시지에 대한 로그를 남깁니다.
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, LogSource msg) throws Exception {
-        target.log(msg.toMessage());
+        target.log(msg.toLog());
         ctx.fireChannelRead(msg);
     }
 }

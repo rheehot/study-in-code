@@ -13,7 +13,7 @@ public class User implements LogSource {
     private final int age;
 
     @Override
-    public String toMessage() {
+    public String toLog() {
         return "name = %s, age = %d".formatted(name, age);
     }
 }

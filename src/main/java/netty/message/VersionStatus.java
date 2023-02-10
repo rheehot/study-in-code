@@ -20,7 +20,7 @@ public class VersionStatus implements StatusUpdatable, LogSource {
     }
 
     @Override
-    public String toMessage() {
+    public String toLog() {
         return String.format("name : %s, version : %s", name, version);
     }
 }

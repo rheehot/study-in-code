@@ -21,7 +21,7 @@ public class LoggerTest {
         channel.writeInbound(user);
 
         // Then : 로깅 확인
-        String expected = user.toMessage();
+        String expected = user.toLog();
         Mockito.verify(logTarget, Mockito.times(1)).log(expected);
     }
 }

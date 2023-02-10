@@ -22,7 +22,7 @@ public class PartialStatus implements StatusUpdatable, LogSource {
     }
 
     @Override
-    public String toMessage() {
+    public String toLog() {
         return String.format("angle : %d, velocity : %f", angle, velocity);
     }
 }
