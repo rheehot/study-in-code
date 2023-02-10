@@ -10,11 +10,6 @@ import org.junit.jupiter.api.function.ThrowingSupplier;
 
 @SuppressWarnings({ "ClassWithOnlyPrivateConstructors", "NonFinalUtilityClass" })
 public class AssertUntilTimeout {
-
-    private AssertUntilTimeout() {
-        /* no-op */
-    }
-
     /**
      * Asserts that the supplied {@code assertOnce} returns {@code true} within the
      * given {@code timeout}.
@@ -25,10 +20,7 @@ public class AssertUntilTimeout {
      */
     public static void assertUntilTimeout(Duration timeout, ThrowingSupplier<Boolean> assertOnce, Supplier<String> messageSupplier) {
         if (!tryUntilTimeout(timeout, assertOnce)) {
-            AssertionFailureBuilder.assertionFailure()
-                                   .message(messageSupplier)
-                                   .reason("execution exceeded timeout of " + timeout.toMillis() + " ms")
-                                   .buildAndThrow();
+            buildAndThrowAssertionFailure(timeout, messageSupplier);
         }
     }
 
@@ -55,4 +47,14 @@ public class AssertUntilTimeout {
         return false;
     }
 
+    private static void buildAndThrowAssertionFailure(Duration timeout, Supplier<String> messageSupplier) {
+        AssertionFailureBuilder.assertionFailure()
+                               .message(messageSupplier)
+                               .reason("execution exceeded timeout of " + timeout.toMillis() + " ms")
+                               .buildAndThrow();
+    }
+
+    private AssertUntilTimeout() {
+        /* no-op */
+    }
 }
