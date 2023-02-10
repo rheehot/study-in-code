@@ -11,34 +11,19 @@ import junit.library.funtional.ThrowingBooleanSupplier;
 
 @SuppressWarnings({ "ClassWithOnlyPrivateConstructors", "NonFinalUtilityClass" })
 public class AssertUntilTimeout {
-    /**
-     * Asserts that the supplied {@code assertOnce} returns {@code true} within the
-     * given {@code timeout}.
-     *
-     * @param timeout the maximum time in milliseconds the code under test is allowed to run
-     * @param assertOnce the code under test
-     * @throws AssertionError if the code under test throws an exception or returns {@code false}
-     */
+
     public static void assertUntilTimeout(Duration timeout, ThrowingBooleanSupplier assertOnce, Supplier<String> messageSupplier) {
         if (!tryUntilTimeout(timeout, assertOnce)) {
             buildAndThrowAssertionFailure(timeout, messageSupplier);
         }
     }
 
-    /**
-     * Try that the supplied {@code assertOnce} returns {@code true} within the
-     * given {@code timeout}.
-     *
-     * @param timeout the maximum time in milliseconds the code under test is allowed to run
-     * @param assertOnce the code under test
-     * @throws AssertionError if the code under test throws an exception or returns {@code false}
-     */
-    private static boolean tryUntilTimeout(Duration timeout, ThrowingBooleanSupplier assertOnce) {
+    private static boolean tryUntilTimeout(Duration timeout, ThrowingBooleanSupplier workOnce) {
         long timeoutMillis = timeout.toMillis();
         long startMillis = System.currentTimeMillis();
         while (System.currentTimeMillis() - startMillis < timeoutMillis) {
             try {
-                if (assertOnce.get()) {
+                if (workOnce.get()) {
                     return true;
                 }
             } catch (Throwable ex) {
