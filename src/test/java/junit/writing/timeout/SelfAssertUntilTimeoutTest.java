@@ -1,8 +1,13 @@
-package junit.library;
+package junit.writing.timeout;
+
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+
+import junit.library.AssertUntilTimeout;
 
 public class SelfAssertUntilTimeoutTest {
-/*    Status lastStatus;
-    Channel channel;
+    Status lastStatus;
+    Controller controller;
 
     @BeforeAll
     void setUp() {
@@ -52,5 +57,5 @@ public class SelfAssertUntilTimeoutTest {
                                          // interval if needed
                                      }
                                  }, () -> "status : " + lastStatus.getStatus());
-    }*/
+    }
 }
