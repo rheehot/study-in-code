@@ -1,12 +1,15 @@
 package junit.writing.timeout;
 
 import static java.time.Duration.ofMillis;
+import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.awaitility.Awaitility.await;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import junit.library.AssertUntilTimeout;
+import junit.library.TryUntilTimeout;
 
 public class AssertUntilTimeoutTest {
     Controller controller;
@@ -48,6 +51,19 @@ public class AssertUntilTimeoutTest {
     }
 
     @Test
+    void statusReflectsCommandedValue_ours2() {
+        // When : send a command to change target value
+        controller.sendCommand(100);
+
+        // Then : The status reflects the commanded value within timeout
+        boolean result = TryUntilTimeout.work(() -> controller.readStatus() == 100, // tryOnce
+                                              2000, // timeout
+                                              () -> "status : " + controller.readStatus() // message on failure
+        );
+        Assertions.assertTrue(result);
+    }
+
+    @Test
     void statusReflectsCommandedValue_junit() {
         // When : send a command to change target value
         controller.sendCommand(100);
@@ -55,9 +71,20 @@ public class AssertUntilTimeoutTest {
         // Then : The status reflects the commanded value within timeout
         Assertions.assertTimeoutPreemptively(ofMillis(2000), // timeout
                                              () -> {
-                                                 while (controller.readStatus() != 100); // executable
+                                                 while (controller.readStatus() != 100) {
+                                                     // sleep if needed
+                                                 }
                                              }, () -> "status : " + controller.readStatus() // message on failure
-
         );
+    }
+
+    @Test
+    void statusReflectsCommandedValue_awaitility() {
+        // When : send a command to change target value
+        controller.sendCommand(100);
+
+        // Then : The status reflects the commanded value within timeout
+        await().atMost(2, SECONDS).until(() -> controller.readStatus() == 100);
+        Assertions.assertEquals(100, controller.readStatus());
     }
 }

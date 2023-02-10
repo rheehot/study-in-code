@@ -17,7 +17,7 @@ class Controller {
     void sendCommand(int value) {
         CompletableFuture.runAsync(() -> {
             try {
-                Thread.sleep(1);
+                Thread.sleep(3000);
                 this.value = value;
             } catch (InterruptedException e) {
                 e.printStackTrace();
