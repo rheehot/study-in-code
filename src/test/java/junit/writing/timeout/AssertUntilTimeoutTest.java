@@ -52,11 +52,11 @@ public class AssertUntilTimeoutTest {
         controller.sendCommand(100);
 
         // Then : The status reflects the commanded value within timeout
-        Assertions.assertTimeout(ofMillis(2000),
-                                 () -> {
-                                     while (controller.readStatus() != 100) {
-                                         // sleep if needed
-                                     }
-                                 }, () -> "status : " + controller.readStatus());
+        Assertions.assertTimeoutPreemptively(ofMillis(2000),
+                                             () -> {
+                                                 while (controller.readStatus() != 100) {
+                                                     // sleep if needed
+                                                 }
+                                             }, () -> "status : " + controller.readStatus());
     }
 }
