@@ -1,13 +1,15 @@
-package junit.mockito;
+package test.data;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.ToString;
 
 @RequiredArgsConstructor
-@EqualsAndHashCode
 @Getter
+@EqualsAndHashCode
+@ToString
 public class Message {
-    private final String id;
-    private final int value;
+    private final String name;
+    private final int age;
 }

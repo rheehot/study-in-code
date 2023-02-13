@@ -1,4 +1,4 @@
-package junit.library.funtional;
+package test.junit.library.funtional;
 
 @FunctionalInterface
 public interface ThrowingBooleanSupplier {

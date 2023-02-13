@@ -1,4 +1,4 @@
-package junit.mockito;
+package test.test.mockito;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.timeout;

@@ -1,4 +1,4 @@
-package junit.library;
+package test.junit.library;
 
 import java.util.function.Supplier;
 

@@ -1,4 +1,4 @@
-package junit.library;
+package test.junit.library;
 
 import static org.junit.platform.commons.util.ExceptionUtils.throwAsUncheckedException;
 
@@ -7,7 +7,7 @@ import java.util.function.Supplier;
 
 import org.junit.jupiter.api.AssertionFailureBuilder;
 
-import junit.library.funtional.ThrowingBooleanSupplier;
+import test.junit.library.funtional.ThrowingBooleanSupplier;
 
 @SuppressWarnings({ "ClassWithOnlyPrivateConstructors", "NonFinalUtilityClass" })
 public class AssertUntilTimeout {

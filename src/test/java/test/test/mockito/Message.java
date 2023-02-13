@@ -1,15 +1,13 @@
-package junit.writing.timeout;
+package test.test.mockito;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
-import lombok.ToString;
 
 @RequiredArgsConstructor
-@Getter
 @EqualsAndHashCode
-@ToString
+@Getter
 public class Message {
-    private final String name;
-    private final int age;
+    private final String id;
+    private final int value;
 }

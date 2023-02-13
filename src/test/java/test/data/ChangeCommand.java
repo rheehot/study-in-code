@@ -1,4 +1,4 @@
-package junit.writing.timeout;
+package test.data;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;

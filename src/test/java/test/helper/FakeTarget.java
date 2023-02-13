@@ -1,7 +1,10 @@
-package junit.writing.timeout;
+package test.helper;
 
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
+
+import test.data.ChangeCommand;
+import test.data.Message;
 
 /**
  * JUnit 오픈소스 프로젝트에 assertUntilTimeout 기능을 제한하기 위한 샘플 코드를 작성에 필요한 더미 의존 클래스를 정의합니다.
