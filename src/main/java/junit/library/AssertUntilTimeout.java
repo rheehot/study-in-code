@@ -12,7 +12,7 @@ import junit.library.funtional.ThrowingBooleanSupplier;
 @SuppressWarnings({ "ClassWithOnlyPrivateConstructors", "NonFinalUtilityClass" })
 public class AssertUntilTimeout {
 
-    public static void assertUntilTimeout(Duration timeout, ThrowingBooleanSupplier assertOnce, Supplier<String> messageSupplier) {
+    public static void work(Duration timeout, ThrowingBooleanSupplier assertOnce, Supplier<String> messageSupplier) {
         if (!tryUntilTimeout(timeout, assertOnce)) {
             buildAndThrowAssertionFailure(timeout, messageSupplier);
         }

@@ -16,74 +16,61 @@ import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import junit.library.AssertUntilTimeout;
-import junit.library.TryUntilTimeout;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 public class AssertUntilTimeoutTest {
-    FakeController fakeController;
+    FakeTarget target;
 
     @BeforeEach
     void setUp() {
-        fakeController = new FakeController();
-        fakeController.connect();
+        target = new FakeTarget();
+        target.connect();
     }
 
     @Test
-    void statusReflectsCommandedValue() {
-        // When : send a command to change target value
-        fakeController.sendCommand(100);
+    void status_reflects_commanded_value() {
+        // 1. When - 상태 변경 명령 전송
+        target.send(new ChangeCommand(100), ofMillis(500));
 
-        // Then : The status reflects the commanded value
+        // 2. Then - 일정 시간 동안 상태 변경 여부 확인
         long startMillis = System.currentTimeMillis();
         while (System.currentTimeMillis() - startMillis < 2000) {
-            if (fakeController.readStatus() == 100) {
+            if (target.readStatus() == 100) {
                 // success
                 return;
             }
         }
 
-        // fail
+        // 3. (실패 시) 실패 판정에 사용된 값 출력
+        log.info("status : {}", target.readStatus());
         Assertions.fail();
     }
 
     @Test
-    void statusReflectsCommandedValue_ours() {
-        // When : send a command to change target value
-        fakeController.sendCommand(100);
+    void status_reflects_commanded_value_ours() {
+        // 1. When - 상태 변경 명령 전송
+        target.send(new ChangeCommand(100), ofMillis(500));
 
-        // Then : The status reflects the commanded value within timeout
-        AssertUntilTimeout.assertUntilTimeout(ofMillis(2000), // timeout
-                                              () -> fakeController.readStatus() == 100, // assertOnce
-                                              () -> "status : " + fakeController.readStatus() // message on failure
+        // 2. Then - 일정 시간 동안 상태 변경 여부 확인
+        AssertUntilTimeout.work(ofMillis(2000), // timeout
+                                () -> target.readStatus() == 100, // assertOnce
+                                () -> "status : " + target.readStatus() // message on failure
         );
     }
 
     @Test
-    void statusReflectsCommandedValue_ours2() {
-        // When : send a command to change target value
-        fakeController.sendCommand(100);
+    void status_reflects_commanded_value_junit() {
+        // 1. When - 상태 변경 명령 전송
+        target.send(new ChangeCommand(100), ofMillis(500));
 
-        // Then : The status reflects the commanded value within timeout
-        boolean result = TryUntilTimeout.work(() -> fakeController.readStatus() == 100, // tryOnce
-                                              2000, // timeout
-                                              () -> "status : " + fakeController.readStatus() // message on failure
-        );
-        Assertions.assertTrue(result);
-    }
-
-    @Test
-    void statusReflectsCommandedValue_junit() {
-        // When : send a command to change target value
-        fakeController.sendCommand(100);
-
-        // Then : The status reflects the commanded value within timeout
-        Assertions.assertTimeoutPreemptively(ofMillis(2000), // timeout
-                                             () -> {
-                                                 while (fakeController.readStatus() != 100) {
-                                                     // sleep if needed
-                                                 }
-                                             }, () -> "status : " + fakeController.readStatus() // message on failure
+        // 2. Then - 일정 시간 동안 상태 변경 여부 확인
+        Assertions.assertTimeout(ofMillis(2000), // timeout
+                                 () -> {
+                                     while (target.readStatus() != 100) { // assert
+                                         Thread.sleep(100);
+                                     }},
+                                 () -> "status : " + target.readStatus() // message on failure
         );
     }
 
@@ -91,73 +78,45 @@ public class AssertUntilTimeoutTest {
     class Awaitility {
 
         @Test
-        void statusReflectsCommandedValue_awaitility1() {
-            // When : send a command to change target value
-            fakeController.sendCommand(100, ofMillis(600));
+        void status_reflects_commanded_value_listener() {
+            // 1. When - 상태 변경 명령 전송
+            target.send(new ChangeCommand(100), ofMillis(500));
 
-            // Then : The status reflects the commanded value within timeout
-            await().atMost(500, MILLISECONDS).until(() -> fakeController.readStatus() == 100);
-        }
-
-        @Test
-        void evaluationListener() {
-            // When : send a command to change target value
-            fakeController.sendCommand(100, ofMillis(300));
-
-            // Then : The status reflects the commanded value within timeout
-            with().conditionEvaluationListener(condition -> log.info("status on failure : {}", fakeController.readStatus()))
+            // 2. Then - 일정 시간 동안 상태 변경 여부 확인
+            with().conditionEvaluationListener(condition -> log.info("status on failure : {}", target.readStatus()))
                   .await()
                   .atMost(500, MILLISECONDS)
-                  .until(() -> fakeController.readStatus() == 100);
+                  .pollInterval(ofMillis(100))
+                  .until(() -> target.readStatus() == 100);
         }
 
         @Test
-        void evaluationListener_onTimeout() {
-            // When : send a command to change target value
-            fakeController.sendCommand(100, ofMillis(600));
+        void status_reflects_commanded_value_on_timeout() {
+            // 1. When - 상태 변경 명령 전송
+            target.send(new ChangeCommand(100), ofMillis(500));
 
-            // Then : The status reflects the commanded value within timeout
+            // 2. Then - 일정 시간 동안 상태 변경 여부 확인
             with().conditionEvaluationListener(new ConditionEvaluationListener<>() {
                 @Override
                 public void onTimeout(TimeoutEvent timeoutEvent) {
-                    log.info("status of failure : {}", fakeController.readStatus());
+                    log.info("status of failure : {}", target.readStatus());
                 }
 
                 @Override
                 public void conditionEvaluated(EvaluatedCondition condition) {}
 
-            }).await().atMost(500, MILLISECONDS).until(() -> fakeController.readStatus() == 100);
+            }).await().atMost(500, MILLISECONDS).pollInterval(ofMillis(100)).until(() -> target.readStatus() == 100);
         }
 
         @Test
-        void statusReflectsCommandedValue_expected() {
-            // When : send a command to change target value
-            fakeController.sendCommand(100);
-
-            // Then : The status reflects the commanded value within timeout
-            await().atMost(100, MILLISECONDS)
-                   .until(() -> fakeController.readStatus() == 100);
-//                   .messageOnFailure(() -> "status : " + fakeController.readStatus());
-        }
-
-        @Test
-        void statusReflectsCommandedValue_int() {
-            // When : send a command to change target value
-            fakeController.sendCommand(100, ofMillis(600));
-
-            // Then : The status reflects the commanded value within timeout
-            await().atMost(500, MILLISECONDS).until(fieldIn(fakeController).ofType(int.class).andWithName("value"),
-                                                    equalTo(100));
-        }
-
-        @Test
-        void statusReflectsCommandedValue_awaitility2() {
+        void status_reflects_commanded_value_field_handling() {
             // When : send a command to change target value
             Message message = new Message("Joo", 100);
-            fakeController.sendCommand(message, ofMillis(600));
+            target.send(message, ofMillis(600));
 
             // Then : The status reflects the commanded value within timeout
-            await().atMost(500, MILLISECONDS).until(fieldIn(fakeController).ofType(Message.class).andWithName("message"), equalTo(message));
+            await().atMost(500, MILLISECONDS)
+                   .until(fieldIn(target).ofType(Message.class).andWithName("message"), equalTo(message));
         }
     }
 }

@@ -1,7 +1,7 @@
 package junit.library;
 
 import static java.time.Duration.ofMillis;
-import static junit.library.AssertUntilTimeout.assertUntilTimeout;
+import static junit.library.AssertUntilTimeout.work;
 
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executor;
@@ -23,6 +23,6 @@ public class AssertUntilTimeoutTest {
         delayedExecutor.execute(()-> conditionSatisfied.set(true));
 
         // 테스트 실행
-        assertUntilTimeout(ofMillis(1100), conditionSatisfied::get, conditionSatisfied::toString);
+        work(ofMillis(1100), conditionSatisfied::get, conditionSatisfied::toString);
     }
 }
