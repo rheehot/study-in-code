@@ -1,4 +1,4 @@
-package junit.mockito;
+package test.test.mockito;
 
 public class Collaborator {
     public int supply() {

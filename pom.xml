@@ -8,11 +8,11 @@
 		<version>2.4.1</version>
 		<relativePath/>
 	</parent>
-	<groupId>spring</groupId>
-	<artifactId>study</artifactId>
+	<groupId>study</groupId>
+	<artifactId>code</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<name>study</name>
-	<description>Hello</description>
+	<description>hello</description>
 	<properties>
 		<maven.compiler.source>16</maven.compiler.source>
 		<maven.compiler.target>16</maven.compiler.target>
@@ -254,8 +254,19 @@
 		</dependency>
 		<dependency>
 			<groupId>org.jetbrains.kotlin</groupId>
-			<artifactId>kotlin-test</artifactId>
+			<artifactId>kotlin-test-junit</artifactId>
 			<version>${kotlin.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+			<version>5.9.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.awaitility</groupId>
+			<artifactId>awaitility</artifactId>
+			<version>4.2.0</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>

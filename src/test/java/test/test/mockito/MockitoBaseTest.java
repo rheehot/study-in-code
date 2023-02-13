@@ -1,4 +1,4 @@
-package junit.mockito;
+package test.test.mockito;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;

@@ -1,4 +1,4 @@
-package junit.mockito;
+package test.test.mockito;
 
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
