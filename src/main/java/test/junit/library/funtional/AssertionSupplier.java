@@ -1,6 +1,6 @@
 package test.junit.library.funtional;
 
 @FunctionalInterface
-public interface ThrowingBooleanSupplier {
+public interface AssertionSupplier {
     boolean get() throws Throwable;
 }

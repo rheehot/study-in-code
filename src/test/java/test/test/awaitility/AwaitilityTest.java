@@ -29,16 +29,16 @@ public class AwaitilityTest {
     }
 
     @Test
-    void status_reflects_commanded_value_listener() {
+    void status_reflects_commanded_value_awaitility() {
         // 1. When - 상태 변경 명령 전송
         target.send(new ChangeCommand(100), ofMillis(100));
 
         // 2. Then - 일정 시간 동안 상태 변경 여부 확인
-        with().conditionEvaluationListener(condition -> log.info("status on failure : {}", target.readStatus()))
-              .await()
-              .atMost(500, MILLISECONDS)
-              .pollInterval(ofMillis(100))
-              .until(() -> target.readStatus() == 100);
+        with().conditionEvaluationListener(condition -> log.info("status on failure : {}", target.readStatus())) // 테스트 조건 확인 시, 상태 값을 출력합니다
+              .await() // 기다립니다
+              .atMost(500, MILLISECONDS) // 500 msec 동안
+              .pollInterval(ofMillis(100)) // 100 msec 간격으로
+              .until(() -> target.readStatus() == 100); // 다음 조건을 통과할 때까지
     }
 
     @Test

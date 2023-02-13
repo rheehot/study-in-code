@@ -1,8 +1,8 @@
 package test.test.junit;
 
 import static java.time.Duration.ofMillis;
+import static org.junit.jupiter.api.Assertions.assertTimeout;
 
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -26,12 +26,12 @@ public class AssertTimeoutTest {
         target.send(new ChangeCommand(100), ofMillis(500));
 
         // 2. Then - 일정 시간 동안 상태 변경 여부 확인
-        Assertions.assertTimeout(ofMillis(2000), // timeout
-                                 () -> {
-                                     while (target.readStatus() != 100) { // assert
-                                         Thread.sleep(100);
-                                     }},
-                                 () -> "status : " + target.readStatus() // message on failure
+        assertTimeout(ofMillis(2000), // timeout
+                      () -> {
+                          while (target.readStatus() != 100) { // assert
+                              Thread.sleep(100);
+                          }
+                      }, () -> "status : " + target.readStatus() // message on failure
         );
     }
 }
