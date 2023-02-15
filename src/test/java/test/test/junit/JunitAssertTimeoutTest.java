@@ -7,31 +7,31 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import lombok.extern.slf4j.Slf4j;
-import test.data.ChangeCommand;
-import test.helper.FakeTarget;
+import test.data.ChangeInventory;
+import test.helper.FakeStore;
 
 @Slf4j
-public class AssertTimeoutTest {
-    FakeTarget target;
+public class JunitAssertTimeoutTest {
+    FakeStore store;
 
     @BeforeEach
     void setUp() {
-        target = new FakeTarget();
-        target.connect();
+        store = new FakeStore();
+        store.init(ofMillis(500));
     }
 
     @Test
-    void status_reflects_commanded_value_junit() {
+    void inventory_reflects_requested_value() {
         // 1. When - 상태 변경 명령 전송
-        target.send(new ChangeCommand(100), ofMillis(500));
+        store.requestAsync(new ChangeInventory(100));
 
         // 2. Then - 일정 시간 동안 상태 변경 여부 확인
         assertTimeout(ofMillis(2000), // timeout
                       () -> {
-                          while (target.readStatus() != 100) { // assert
+                          while (store.getInventory() != 100) { // condition
                               Thread.sleep(100);
                           }
-                      }, () -> "status : " + target.readStatus() // message on failure
+                      }, () -> "status : " + store.getInventory() // message on failure
         );
     }
 }

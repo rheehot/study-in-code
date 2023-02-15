@@ -5,6 +5,6 @@ import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
 @Getter
-public class ChangeCommand {
-    private final int value;
+public class ChangeInventory {
+    private final int inventory;
 }
