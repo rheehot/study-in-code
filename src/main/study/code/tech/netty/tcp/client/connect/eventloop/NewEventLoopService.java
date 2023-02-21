@@ -14,9 +14,10 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.PostConstruct;
-
-@SuppressWarnings("DuplicatedCode")
+/**
+ * TCP 연결 실패 시, 연결 시도를 위해 할당된 EventLoop(I/O 쓰레드) 누수가 발생하는 코드와 안전하게 자원을 해제하는
+ * 코드를 비교 분석하기 위한 서비스를 제공합니다.
+ */
 @Service
 @Slf4j
 public class NewEventLoopService {
@@ -24,9 +25,12 @@ public class NewEventLoopService {
     private final Bootstrap bootstrap = new Bootstrap();
     private Channel channel;
 
-    @PostConstruct
-    public void initialize() {
-        bootstrap.group(reusedEventLoopGroup)
+    /**
+     * EventLoopGroup을 재사용하여 연결을 시도합니다. 연결에 실패한 경우, 연결 시도에 사용된 EventLoop를
+     * 해제하지 않아 쓰레드 누수가 발생하게 됩니다.
+     */
+    public void leakIfFailed(String ip, int port) throws InterruptedException {
+        channel = bootstrap.group(reusedEventLoopGroup)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<>() {
                     @Override
@@ -36,29 +40,34 @@ public class NewEventLoopService {
                                 .addLast(new StringDecoder())
                                 .addLast(new StringEncoder());
                     }
-                });
+                }).connect(ip, port).sync().channel();
     }
 
     /**
-     * 반복전인 연결에 EventLoopGroup을 재사용하는 경우, EventLoopGroup 내부에서 EventLoop 쓰레드가 추가로 할당됩니다. 그러면 연결에
-     * 실패하는 경우 더 이상 사용하지 않는 EventLoop 쓰레드가 해제되지 않고 남아있게 됩니다.
-     */
-    public void leakIfFailed(String ip, int port) throws InterruptedException {
-        channel = bootstrap.connect(ip, port).sync().channel();
-        log.info("connectReused() success : " + ip + ':' + port);
-    }
-
-    /**
-     * 반복적인 연결에 EventLoopGroup을 재사용하지만, 연결 실패 시 사용했던 EventLoop를 해제해 줍니다.
+     * EventLoopGroup을 재사용하여 연결을 시도합니다. 연결에 실패한 경우, 연결 시도에 사용된 EventLoop를
+     * 해제함으로 쓰레드 누수가 발생하지 않습니다.
      */
     public void releaseIfFailed(String ip, int port) throws InterruptedException {
-        channel = bootstrap.connect(ip, port).addListener((ChannelFutureListener) future -> {
-            if (!future.isSuccess()) {
-                future.channel().eventLoop().shutdownGracefully();
-            }
-        }).sync().channel();
+        channel = bootstrap.group(reusedEventLoopGroup)
+                .channel(NioSocketChannel.class)
+                .handler(new ChannelInitializer<>() {
+                    @Override
+                    protected void initChannel(Channel ch) throws Exception {
+                        ch.pipeline()
+                                .addLast(new LoggingHandler(LogLevel.INFO))
+                                .addLast(new StringDecoder())
+                                .addLast(new StringEncoder());
+                    }
+                }).connect(ip, port).addListener((ChannelFutureListener) future -> {
+                    if (!future.isSuccess()) {
+                        future.channel().eventLoop().shutdownGracefully();
+                    }
+                }).sync().channel();
     }
 
+    /**
+     * EventLoopGroup을 재사용함으로 채널에 할당된 EventLoop 쓰레드만 해제합니다.
+     */
     public void disconnect(){
         if (channel != null) {
             channel.eventLoop().shutdownGracefully();
