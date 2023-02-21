@@ -1,0 +1,11 @@
+### capture
+PUT http://localhost:58080/api/resource/thread/active/capture/timetag
+
+### get all active threads
+GET http://localhost:58080/api/resource/thread/active
+
+### get diff active threads
+GET http://localhost:58080/api/resource/thread/active/diff/timetag
+
+### simulate to add an active thread
+PUT http://localhost:58080/api/resource/thread/new/30000
