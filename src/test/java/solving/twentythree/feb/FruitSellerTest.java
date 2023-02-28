@@ -34,18 +34,15 @@ public class FruitSellerTest {
     @SuppressWarnings("unused")
     public int solution(int maxScore, int numOfApplePerBox, int[] appleScores) {
         // 1. 사과의 점수를 기준으로 내림차순 정렬합니다.
-        int[] sortedAppleScores = Arrays.stream(appleScores)
+        Integer[] sortedAppleScores = Arrays.stream(appleScores)
                 .boxed()
                 .sorted(Comparator.reverseOrder())
-                .mapToInt(Integer::intValue)
-                .toArray();
+                .toArray(Integer[]::new);
 
         // 2. 점수가 높은 사과부터 차례로 박스에 담습니다.
         List<List<Integer>> boxes = IntStream.range(0, appleScores.length / numOfApplePerBox)
                 .sorted()
-                .mapToObj(i -> Arrays.stream(sortedAppleScores, i * numOfApplePerBox, (i + 1) * numOfApplePerBox)
-                        .boxed()
-                        .toList())
+                .mapToObj(i -> Arrays.stream(sortedAppleScores, i * numOfApplePerBox, (i + 1) * numOfApplePerBox).toList())
                 .toList();
 
         // 3. 전체 박스의 점수를 계산하고 합산합니다.
