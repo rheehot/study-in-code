@@ -1,4 +1,4 @@
-package tech.spring.study.functional;
+package tech.javalang.functional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Nested;

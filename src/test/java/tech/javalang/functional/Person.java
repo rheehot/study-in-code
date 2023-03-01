@@ -1,4 +1,4 @@
-package tech.spring.study.functional;
+package tech.javalang.functional;
 
 public class Person {
     public String hello(Introduce supplier) {
