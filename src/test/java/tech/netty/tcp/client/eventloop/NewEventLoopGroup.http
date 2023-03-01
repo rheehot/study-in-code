@@ -1,0 +1,11 @@
+
+### connect-with-group-leak
+PUT http://localhost:58080/api/tcp/client/event-loop-group/connect/leak/127.0.0.1/12346
+Accept: application/json
+
+### connect-with-group-release
+PUT http://localhost:58080/api/tcp/client/event-loop-group/connect/release/127.0.0.1/12346
+Accept: application/json
+
+### disconnect-with-group
+DELETE http://localhost:58080/api/tcp/client/event-loop-group/disconnect

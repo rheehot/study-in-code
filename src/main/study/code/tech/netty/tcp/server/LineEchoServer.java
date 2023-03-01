@@ -7,6 +7,8 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import io.netty.handler.codec.LineBasedFrameDecoder;
 import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
+import io.netty.handler.logging.LogLevel;
+import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
@@ -28,6 +30,7 @@ public class LineEchoServer {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline()
+                                .addLast(new LoggingHandler(LogLevel.INFO))
                                 .addLast(new LineBasedFrameDecoder(1024))
                                 .addLast(new StringDecoder())
                                 .addLast(new ChannelInboundHandlerAdapter() {
