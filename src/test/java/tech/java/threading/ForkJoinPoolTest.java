@@ -1,4 +1,4 @@
-package tech.javalang.threading;
+package tech.java.threading;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

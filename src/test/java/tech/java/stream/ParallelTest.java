@@ -1,4 +1,4 @@
-package tech.javalang.stream;
+package tech.java.stream;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package tech.javalang.runtime;
+package tech.java.runtime;
 
 import org.junit.jupiter.api.Test;
 

@@ -1,4 +1,4 @@
-package tech.javalang.concurrent;
+package tech.java.concurrent;
 
 import org.junit.jupiter.api.Test;
 

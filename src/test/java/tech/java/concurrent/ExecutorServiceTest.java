@@ -1,4 +1,4 @@
-package tech.javalang.concurrent;
+package tech.java.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;

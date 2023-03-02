@@ -1,4 +1,4 @@
-package tech.javalang.functional;
+package tech.java.functional;
 
 public class IntroduceMyself implements Introduce {
     @Override

@@ -1,4 +1,4 @@
-package tech.javalang.functional;
+package tech.java.functional;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;

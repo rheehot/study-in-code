@@ -1,4 +1,4 @@
-package tech.javalang.functional;
+package tech.java.functional;
 
 @FunctionalInterface
 public interface Introduce {

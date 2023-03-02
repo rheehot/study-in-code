@@ -1,4 +1,4 @@
-package tech.javalang.type;
+package tech.java.type;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
