@@ -1,38 +1,44 @@
 package tech.java.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("SimplifiableAssertion")
 @Slf4j
 public class ExecutorServiceTest {
+    ExecutorService executor;
+
+    @BeforeEach
+    void setUp() {
+        executor = Executors.newSingleThreadExecutor();
+    }
 
     /**
-     * 하나의 작업을 비동기적으로 실행(submit)하고 처리 완료를 기다린 뒤 결과를 확인(get)합니다.
+     * 하나의 작업을 비동기적으로 실행(submit)하고 작업이 완료되면 결과를 확인(get)합니다.
      */
     @Test
     void runSingleTask() throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
+        // When : 비동기 태스크 시작
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
             return "result";
         });
 
-        assertEquals("result", future.get());
+        // When : 작업 완료 및 결과 확인
+        assertEquals("result", future.get(3000, TimeUnit.MILLISECONDS));
         assertTrue(future.isDone());
     }
 
     /**
-     * 여러 개의 작업을 비동기적으로 실행(submit)하고 처리 완료를 기다린 뒤 결과를 확인(get)합니다.
+     * 여러 개의 작업을 비동기적으로 실행(submit)하고 각각의 작업이 완료되면 결과를 확인(get)합니다.
      */
     @Test
     void runMultiTasks() throws Exception {
-        ExecutorService executor = Executors.newSingleThreadExecutor();
-
         Future<String> future1 = executor.submit(() -> {
             Thread.sleep(2000);
             return "result1";
@@ -43,9 +49,9 @@ public class ExecutorServiceTest {
             return "result2";
         });
 
-        assertEquals("result1", future1.get());
+        assertEquals("result1", future1.get(3000, TimeUnit.MILLISECONDS));
         assertTrue(future1.isDone());
-        assertEquals("result2", future2.get());
+        assertEquals("result2", future2.get(3000, TimeUnit.MILLISECONDS));
         assertTrue(future2.isDone());
     }
 
@@ -55,16 +61,15 @@ public class ExecutorServiceTest {
     @Test
     void cancelAfterCompleted() throws Exception {
         // Given : 짧은 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> "result");
 
         // When : 작업이 완료된 후 취소
         Thread.sleep(1000);
-        boolean cancelled = future.cancel(false);
+        boolean cancelResult = future.cancel(false);
 
         // Then : 취소 실패
-        assertFalse(cancelled);
-        assertFalse(future.isCancelled());
+        assertTrue(!cancelResult);
+        assertTrue(!future.isCancelled());
         assertTrue(future.isDone());
     }
 
@@ -74,7 +79,6 @@ public class ExecutorServiceTest {
     @Test
     void cancelTaskWithoutInterrupt() throws Exception {
         // Given : 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
@@ -83,14 +87,14 @@ public class ExecutorServiceTest {
         });
 
         // When : 인터럽트 없이 작업 취소
-        Thread.sleep(500); // 태스크 실행을 대략 보장
+        Thread.sleep(500);
         boolean cancelResult = future.cancel(false);
 
         // Then : 작업은 끝까지 실행됨, 그러나 결과를 받을 수 없는 취소 상태가 됨
         assertEquals("message", queue.poll(2000, TimeUnit.MILLISECONDS));
-        assertTrue(cancelResult); // 취소 성공
-        assertTrue(future.isCancelled());  // 취소됨 상태
-        assertTrue(future.isDone()); // 완료됨 상태
+        assertTrue(cancelResult);
+        assertTrue(future.isCancelled());
+        assertTrue(future.isDone());
         assertThrows(CancellationException.class, future::get); // 작업 결과 역시 취소됨
     }
 
@@ -100,7 +104,6 @@ public class ExecutorServiceTest {
     @Test
     void cancelTaskWithInterrupt() throws Exception {
         // Given : 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
@@ -109,15 +112,15 @@ public class ExecutorServiceTest {
         });
 
         // When : 인터럽트와 함께 작업 취소
-        Thread.sleep(500); // 태스크 실행을 대략 보장
+        Thread.sleep(500);
         boolean cancelResult = future.cancel(true);
 
         // Then : 작업은 끝까지 실행되지 않음
-        assertNull(queue.poll(2000, TimeUnit.MILLISECONDS));
-        assertTrue(cancelResult); // 취소 성공
-        assertTrue(future.isCancelled());  // 취소됨 상태
-        assertTrue(future.isDone()); // 완료됨 상태
-        assertThrows(CancellationException.class, future::get); // 작업 결과 역시 취소됨
+        assertEquals(null, queue.poll(2000, TimeUnit.MILLISECONDS));
+        assertTrue(cancelResult);
+        assertTrue(future.isCancelled());
+        assertTrue(future.isDone());
+        assertThrows(CancellationException.class, future::get);
     }
 
     /**
@@ -126,20 +129,19 @@ public class ExecutorServiceTest {
     @Test
     void cancelDoNotAffectExecutorTermination() throws Exception {
         // Given : 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
             return "result";
         });
 
-        // When : 인터럽트와 없이 작업 취소
+        // When : 인터럽트 없이 작업 취소
         Thread.sleep(500);
         future.cancel(false);
 
         // Then : Executor의 종료는 관련 없음
-        assertFalse(executor.awaitTermination(2000, TimeUnit.MILLISECONDS));
-        assertFalse(executor.isShutdown());
-        assertFalse(executor.isTerminated());
+        assertTrue(!executor.awaitTermination(2000, TimeUnit.MILLISECONDS));
+        assertTrue(!executor.isTerminated());
+        assertTrue(!executor.isShutdown());
     }
 
     /**
@@ -148,7 +150,6 @@ public class ExecutorServiceTest {
     @Test
     void oneThreadCancelAnotherCompletes() throws Exception {
         // Given : 두개의 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         Callable<String> task = () -> {
             Thread.sleep(2000);
             return "result";
@@ -157,15 +158,16 @@ public class ExecutorServiceTest {
         Future<String> completeFuture = executor.submit(task);
 
         // When : 첫번째 작업만 취소
-        Thread.sleep(500); // 태스크에서 Sleep에 들어갈 때 까지 기다립니다.
+        Thread.sleep(500);
         cancelFuture.cancel(true);
 
-        // Then : 첫번째 작업은 취소되고, 두번째 작업은 정상적으로 완료됨
+        // Then : 첫번째 작업은 취소
         assertThrows(CancellationException.class, cancelFuture::get);
         assertTrue(cancelFuture.isCancelled());
         assertTrue(cancelFuture.isDone());
+        // Then : 두번째 작업은 정상적으로 완료
         assertEquals("result", completeFuture.get());
-        assertFalse(completeFuture.isCancelled());
+        assertTrue(!completeFuture.isCancelled());
         assertTrue(completeFuture.isDone());
     }
 
@@ -175,7 +177,6 @@ public class ExecutorServiceTest {
     @Test
     void shutdown() throws Exception {
         // Given : 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
@@ -188,9 +189,10 @@ public class ExecutorServiceTest {
         executor.shutdown();
 
         // Then : 태스크가 완료되면 Executor 종료
-        assertEquals("result", future.get());
-        assertTrue(future.isDone());
+        assertEquals("result", future.get(2000, TimeUnit.MILLISECONDS));
         assertEquals("message", queue.poll(2000, TimeUnit.MILLISECONDS));
+        assertTrue(future.isDone());
+        assertTrue(!future.isCancelled());
         assertTrue(executor.isShutdown());
         assertTrue(executor.isTerminated());
     }
@@ -201,7 +203,6 @@ public class ExecutorServiceTest {
     @Test
     void shutdownNow() throws Exception {
         // Given : 비동기 작업 실행
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
@@ -215,8 +216,9 @@ public class ExecutorServiceTest {
 
         // Then : 태스크가 중단되며 Executor 종료
         assertThrows(ExecutionException.class, future::get);
+        assertEquals(null, queue.poll(2000, TimeUnit.MILLISECONDS));
         assertTrue(future.isDone());
-        assertNull(queue.poll(3000, TimeUnit.MILLISECONDS));
+        assertTrue(!future.isCancelled());
         assertTrue(executor.isShutdown());
         assertTrue(executor.isTerminated());
     }
@@ -227,7 +229,6 @@ public class ExecutorServiceTest {
     @Test
     void preventNewTaskFromSubmitting() throws Exception {
         // Given : Executor 종료
-        ExecutorService executor = Executors.newSingleThreadExecutor();
         BlockingQueue<String> queue = new LinkedBlockingQueue<>();
         Future<String> future = executor.submit(() -> {
             Thread.sleep(2000);
@@ -247,5 +248,9 @@ public class ExecutorServiceTest {
         // Expected : 기존 작업은 정상적으로 완료
         assertEquals("result", future.get());
         assertEquals("message", queue.poll(2000, TimeUnit.MILLISECONDS));
+        assertTrue(future.isDone());
+        assertTrue(!future.isCancelled());
+        assertTrue(executor.isShutdown());
+        assertTrue(executor.isTerminated());
     }
 }
