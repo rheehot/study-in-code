@@ -71,7 +71,7 @@ public class NewEventLoopService {
      */
     public void disconnect(){
         if (channel != null) {
-            channel.close();
+            channel.eventLoop().shutdownGracefully();
         }
     }
 }
