@@ -14,6 +14,8 @@ import io.netty.handler.logging.LoggingHandler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import javax.annotation.PostConstruct;
+
 /**
  * TCP 연결 실패 시, 연결 시도를 위해 할당된 EventLoop(I/O 쓰레드) 누수가 발생하는 코드와 안전하게 자원을 해제하는
  * 코드를 비교 분석하기 위한 서비스를 제공합니다.
@@ -25,44 +27,43 @@ public class NewEventLoopService {
     private final Bootstrap bootstrap = new Bootstrap();
     private Channel channel;
 
-    /**
-     * EventLoopGroup을 재사용하여 연결을 시도합니다. 연결에 실패한 경우, 연결 시도에 사용된 EventLoop를
-     * 해제하지 않아 쓰레드 누수가 발생하게 됩니다.
-     */
-    public void leakIfFailed(String ip, int port) throws InterruptedException {
-        channel = bootstrap.group(reusedEventLoopGroup)
+    @PostConstruct
+    public void initialize() {
+        bootstrap.group(reusedEventLoopGroup)
                 .channel(NioSocketChannel.class)
                 .handler(new ChannelInitializer<>() {
                     @Override
                     protected void initChannel(Channel ch) throws Exception {
                         ch.pipeline()
+                                // 이렇게 썻으면 어디서 해재헤 주어야 하는가?
                                 .addLast(new LoggingHandler(LogLevel.INFO))
                                 .addLast(new StringDecoder())
                                 .addLast(new StringEncoder());
                     }
-                }).connect(ip, port).sync().channel();
+                });
     }
+
+    /**
+     * EventLoopGroup을 재사용하여 연결을 시도합니다. 연결에 실패한 경우, 연결 시도에 사용된 EventLoop를
+     * 해제하지 않아 쓰레드 누수가 발생하게 됩니다.
+     */
+    public void leakIfFailed(String ip, int port) throws InterruptedException {
+        channel = bootstrap.connect(ip, port).sync().channel();
+        log.info("connectReused() success : " + ip + ':' + port);
+    }
+
 
     /**
      * EventLoopGroup을 재사용하여 연결을 시도합니다. 연결에 실패한 경우, 연결 시도에 사용된 EventLoop를
      * 해제함으로 쓰레드 누수가 발생하지 않습니다.
      */
     public void releaseIfFailed(String ip, int port) throws InterruptedException {
-        channel = bootstrap.group(reusedEventLoopGroup)
-                .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<>() {
-                    @Override
-                    protected void initChannel(Channel ch) throws Exception {
-                        ch.pipeline()
-                                .addLast(new LoggingHandler(LogLevel.INFO))
-                                .addLast(new StringDecoder())
-                                .addLast(new StringEncoder());
-                    }
-                }).connect(ip, port).addListener((ChannelFutureListener) future -> {
-                    if (!future.isSuccess()) {
-                        future.channel().eventLoop().shutdownGracefully();
-                    }
-                }).sync().channel();
+        channel = bootstrap.connect(ip, port).addListener((ChannelFutureListener) future -> {
+            if (!future.isSuccess()) {
+                future.channel().eventLoop().shutdownGracefully();
+                future.channel().pipeline().context(LoggingHandler.class).executor().shutdownGracefully();
+            }
+        }).sync().channel();
     }
 
     /**
