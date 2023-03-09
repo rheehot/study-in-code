@@ -27,39 +27,50 @@ public class BackgroundCleanUpTest {
     }
 
     public int[] solution(String[] wallpaper) {
+        return new int[]{
+                top(wallpaper),
+                left(wallpaper),
+                bottom(wallpaper) + 1,
+                right(wallpaper) + 1
+        };
+    }
 
-        // Top
+    private static int left(String[] wallpaper) {
+        int left = Arrays.stream(wallpaper)
+                        .mapToInt(line -> line.indexOf('#'))
+                        .filter(find -> find != -1)
+                        .min()
+                        .orElse(-1);
+        assert left != -1;
+        return left;
+    }
+
+    private static int top(String[] wallpaper) {
         int top = IntStream.range(0, wallpaper.length)
                 .filter(i -> wallpaper[i].contains("#"))
                 .findFirst()
                 .orElse(-1);
         assert top != -1;
+        return top;
+    }
 
-        // Left
-        int left = Arrays.stream(wallpaper)
-                .mapToInt(line -> line.indexOf('#'))
-                .filter(find -> find != -1)
-                .min()
-                .orElse(-1);
-        assert left != -1;
-
-        // Bottom
-        int bottom = IntStream.iterate(wallpaper.length - 1, i -> i - 1).limit(wallpaper.length)
-                .filter(i -> wallpaper[i].contains("#"))
-                .findFirst()
-                .orElse(-1);
-        assert bottom != -1;
-
-        // Right
+    private static int right(String[] wallpaper) {
         int right = Arrays.stream(wallpaper)
                 .mapToInt(line -> line.lastIndexOf('#'))
                 .filter(find -> find != -1)
                 .max()
                 .orElse(-1);
         assert right != -1;
+        return right;
+    }
 
-        // 드래그할 영역 반환
-        return new int[]{top, left, bottom + 1, right + 1};
+    private static int bottom(String[] wallpaper) {
+        int bottom = IntStream.iterate(wallpaper.length - 1, i -> i - 1).limit(wallpaper.length)
+                .filter(i -> wallpaper[i].contains("#"))
+                .findFirst()
+                .orElse(-1);
+        assert bottom != -1;
+        return bottom;
     }
 }
 
