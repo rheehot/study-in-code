@@ -17,8 +17,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 @Slf4j
 public class AwaitilityApiTest {
     /**
-     * atLeast() 메서드를 사용해 최소한 N 시간 이후에 조건을 만족하는지 확인할 수 있다.
-     * atLeastSuccess() 메서드는 N 시간 이후에 조건을 만족하여 성공하는 케이스를 보여준다.
+     * 최소한 N초 이후에 조건을 만족하는지 확인할 수 있다.
      */
     @Test
     void atLeastSuccess() {
@@ -35,12 +34,14 @@ public class AwaitilityApiTest {
 
         // Then: 1초 이후에 조건을 만족하여 성공
         with().conditionEvaluationListener(condition -> log.info("value: {}", condition))
-                .await().atLeast(1000, TimeUnit.MILLISECONDS).until(() -> value.get() == 1);
+                .await()
+                .atLeast(900, TimeUnit.MILLISECONDS)
+                .atMost(2000, TimeUnit.MILLISECONDS)
+                .until(() -> value.get() == 1);
     }
 
     /**
-     * atLeast() 메서드를 사용해 최소한 N 시간 이후에 조건을 만족하는지 확인할 수 있다.
-     * atLeastFail()  메서드는 N 시간 이전에 조건이 만족하여 실패하는 케이스를 보여준다.
+     * N초 이전에 조건이 만족하여 실패하는 케이스를 보여준다.
      */
     @Test
     void atLeastFail() {
