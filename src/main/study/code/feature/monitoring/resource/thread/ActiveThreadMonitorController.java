@@ -22,7 +22,7 @@ public class ActiveThreadMonitorController {
         return ResponseEntity.ok().build();
     }
 
-    // 현재 Active 쓰레드 캡처
+    // N 초 동안 실행되는 시뮬레이션 쓰레드 생성 후 실행
     @PutMapping(path = "/new/{runningTimeMillis}", produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<Object> captureActiveThreads(@PathVariable int runningTimeMillis) {
         CompletableFuture.runAsync(() -> {
