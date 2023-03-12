@@ -1,8 +1,11 @@
 package tech.test.test.awaitility;
 
 import lombok.extern.slf4j.Slf4j;
+import org.awaitility.Awaitility;
 import org.awaitility.core.ConditionTimeoutException;
 import org.junit.jupiter.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.ExecutorService;
@@ -10,12 +13,71 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.awaitility.Awaitility.await;
 import static org.awaitility.Awaitility.with;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @SuppressWarnings("CodeBlock2Expr")
 @Slf4j
 public class AwaitilityApiTest {
+    final ExecutorService executor = Executors.newSingleThreadExecutor();
+
+    @BeforeEach
+    void setUp(){
+        Awaitility.setDefaultPollInterval(1, TimeUnit.MILLISECONDS);
+    }
+
+    /**
+     * during 메서드는 특정 조건이 일정 시간 동안 연속해서 만족하는지 확인한다.
+     */
+    @Nested
+    class Duration {
+        @Test
+        void success() {
+            // Given
+            AtomicInteger value = new AtomicInteger(0);
+
+            // When: 500ms 동안만 조건을 만족하는 작업 실행
+            executor.submit(() -> {
+                value.set(1);
+                Thread.sleep(500);
+                value.set(0);
+                Thread.sleep(500);
+                return true;
+            });
+
+            // Then: 약 500ms 동안 조건을 만족
+            await().during(400, TimeUnit.MILLISECONDS)
+                    .atMost(1100, TimeUnit.MILLISECONDS)
+                    .until(() -> value.get() == 1);
+        }
+
+        @Test
+        void fail() {
+            // Given
+            AtomicInteger value = new AtomicInteger(0);
+
+            // When: 300ms 동안만 조건을 만족하는 작업 실행
+            executor.submit(() -> {
+                value.set(1);
+                Thread.sleep(300);
+                value.set(0);
+                Thread.sleep(700);
+                return true;
+            });
+
+            // Then: 약 500ms 동안 조건 만족 실패
+            Assertions.assertThrows(
+                    ConditionTimeoutException.class,
+                    () -> {
+                        await().during(400, TimeUnit.MILLISECONDS)
+                                .atMost(1100, TimeUnit.MILLISECONDS)
+                                .until(() -> value.get() == 1);
+                    }
+            );
+        }
+    }
+
     /**
      * 최소한 N초 이후에 조건을 만족하는지 확인할 수 있다.
      */
@@ -23,7 +85,6 @@ public class AwaitilityApiTest {
     void atLeastSuccess() {
         // Given
         AtomicInteger value = new AtomicInteger(0);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
 
         // When: 1초 후에 조건 만족하도록 설정
         executor.submit(() -> {
@@ -47,7 +108,6 @@ public class AwaitilityApiTest {
     void atLeastFail() {
         // Given
         AtomicInteger value = new AtomicInteger(0);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
 
         // When: 1초 후에 조건 만족하도록 설정
         executor.submit(() -> {
@@ -70,7 +130,6 @@ public class AwaitilityApiTest {
     void untilAsserted() {
         // Given
         AtomicInteger value = new AtomicInteger(0);
-        ExecutorService executor = Executors.newSingleThreadExecutor();
 
         // When: 1초 후에 조건 만족하도록 설정
         executor.submit(() -> {
