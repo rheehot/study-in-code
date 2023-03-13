@@ -2,6 +2,7 @@ package tech.java.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
 import java.util.concurrent.*;
@@ -53,6 +54,41 @@ public class ExecutorServiceTest {
         assertTrue(future1.isDone());
         assertEquals("result2", future2.get(3000, TimeUnit.MILLISECONDS));
         assertTrue(future2.isDone());
+    }
+
+    @Nested
+    class ExceptionTest {
+        @Test
+        void throwUncheckedException() throws Exception {
+            // When : 런타임 예외를 던지는 비동기 태스크 시작
+            Future<String> future = executor.submit(() -> {
+                throw new IllegalStateException("런타임 예외");
+            });
+
+            // When : get() 메서드를 호출하면 ExecutionException이 발생하고, getCause() 메서드를 호출하면 원래의 예외를 확인할 수 있습니다.
+            try {
+                future.get(3000, TimeUnit.MILLISECONDS);
+                fail("예외가 발생해야 합니다.");
+            } catch (ExecutionException e) {
+                assertSame(IllegalStateException.class, e.getCause().getClass());
+            }
+        }
+
+        @Test
+        void throwCheckedException() throws Exception {
+            // When : 체크 예외를 던지는 비동기 태스크 시작
+            Future<String> future = executor.submit(() -> {
+                throw new InterruptedException("체크 예외");
+            });
+
+            // When : get() 메서드를 호출하면 ExecutionException이 발생하고, getCause() 메서드를 호출하면 원래의 예외를 확인할 수 있습니다.
+            try {
+                future.get(3000, TimeUnit.MILLISECONDS);
+                fail("예외가 발생해야 합니다.");
+            } catch (ExecutionException e) {
+                assertSame(InterruptedException.class, e.getCause().getClass());
+            }
+        }
     }
 
     /**
