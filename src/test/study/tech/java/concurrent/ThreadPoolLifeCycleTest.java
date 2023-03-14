@@ -11,9 +11,15 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
 import static org.junit.jupiter.api.TestInstance.Lifecycle;
 
-@TestInstance(Lifecycle.PER_CLASS) // 테스트 인스턴스를 클래스 단위로 생성
+/**
+ * 쓰레드 풀의 상태에 따라 달라지는 동작을 시간의 흐름을 따라 확인합니다.
+ *
+ * 각 단계를 테스트 메서드로 나누고 순서대로 실행되도록 설정합니다. 메서드 간 쓰레드 풀 상태를 공유하기
+ * 위해서 클래스 단위로 테스트 인스턴스를 생성해 공유하게 합니다.
+ */
+@TestInstance(Lifecycle.PER_CLASS) // 메서드 간 상태 공유
 @TestMethodOrder(OrderAnnotation.class) // 메서드 순서 지정
-public class ThreadPoolExecutorTest {
+public class ThreadPoolLifeCycleTest {
     // 쓰레드 풀
     ThreadPoolExecutor threadPool;
     // 1초간 실행되는 무거운 작업 시뮬레이션
