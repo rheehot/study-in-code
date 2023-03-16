@@ -1,9 +1,10 @@
 package tech.java.concurrent;
 
 import lombok.extern.slf4j.Slf4j;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -70,6 +71,30 @@ public class InterruptThreadTest {
                         !thread.isAlive() &&
                         !runningThread(counter, 100)
                 );
+    }
+
+    /**
+     * ExecutorService.cancel(true) 메서드는, 비동기 작업에 인터럽트를 요청한다.
+     */
+    @Test
+    void cancelRaiseInterrupt() throws Exception {
+        // Given: 1초간 대기하는 비동기 작업을 실행한다.
+        ExecutorService executorService = Executors.newSingleThreadExecutor();
+        Future<Boolean> future = executorService.submit(() -> {
+            Thread.sleep(1000);
+            return true;
+        });
+
+        // When: 작업 시작을 보장한 후, 작업을 인터럽트한다.
+        Thread.sleep(500);
+        future.cancel(true);
+
+        // Then: Future::get 메서드를 통해 비동기 작업 중 발생한 예외를 캐치하고, 세부적인 예외 타입까지 확인 가능하다.
+        try {
+            future.get(3000, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException e) {
+            Assertions.assertSame(InterruptedException.class, e.getCause().getClass());
+        }
     }
 
     /**
