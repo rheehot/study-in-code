@@ -1,35 +1,86 @@
 package tech.java.concurrent;
 
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicLong;
+
+import static org.awaitility.Awaitility.await;
+
+/**
+ * 쓰레드 인터럽트 메커니즘을 학습합니다.
+ *
+ * 참고: https://www.baeldung.com/java-interrupted-exception
+ */
+@Slf4j
 public class InterruptThreadTest {
 
-    // Thread.interrupt() 메서드를 사용해 쓰레드를 중단시킬 수 있습니다.
+    /**
+     * 인터럽트를 처리하지 않는 작업 쓰레드를 인터럽트하면 작업 쓰레드는 살아서 실행을 이어갑니다.
+     * 단지, 쓰레드 내부에 인터럽트 플래그만 설정될 뿐입니다.
+     */
     @Test
-    void interrupt() throws InterruptedException {
+    void Uninterruptibly() throws InterruptedException {
+        AtomicBoolean stopSwitch = new AtomicBoolean(false);
+        AtomicLong counter = new AtomicLong(0);
+
+        // When: 인터럽트를 처리하지 않는 쓰레드 생성
         Thread thread = new Thread(() -> {
-            while (true) {
-                // isInterrupted 메서드는 인터럽트 플래그의 상태를 확인하기만 합니다.
-                // 반면에 interrupted 메서드는 인터럽트 플래그의 상태를 확인한 후, 인터럽트 플래그를 리셋합니다.
-                if (Thread.currentThread().isInterrupted()) {
-                    System.out.println("Interrupted and current interrupt status is " + Thread.interrupted());
-                    System.out.println("But Thread.interrupted() call makes interrupt status to " + Thread.currentThread().isInterrupted());
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    System.out.println("Interrupted while sleeping by main thread and now interrupt status is reset to " + Thread.currentThread().isInterrupted());
-                    // interrupt 메서드는 기본적으로 쓰레드의 인터럽트 플래그를 설정합니다.
-                    Thread.currentThread().interrupt();
-                    System.out.println("When handling to InterruptedException, re-interrupt the thread and now interrupt status is " + Thread.currentThread().isInterrupted());
-                }
-                Thread.yield();
+            while(!stopSwitch.get()) {
+                counter.incrementAndGet();
             }
         });
         thread.start();
-        Thread.sleep(3000);
+
+        // When: 쓰레드 인터럽트
         thread.interrupt();
-        thread.join();
+
+        // Then: 쓰레드는 인터럽트 플래그가 설정된 상태로 살아서 실행을 이어간다.
+        await().during(3, TimeUnit.SECONDS)
+                .until(() -> thread.isInterrupted() &&
+                        thread.isAlive() &&
+                        runningThread(counter, 100)
+                );
+    }
+
+    /**
+     * 인터럽트를 처리하는 작업 쓰레드를 인터럽트하면 작업 쓰레드는 인터럽트되어 실행을 종료한다.
+     */
+    @Test
+    void Interruptibly() throws InterruptedException {
+        AtomicLong counter = new AtomicLong(0);
+
+        // When: 인터럽트를 처리하는 쓰레드 생성
+        Thread thread = new Thread(() -> {
+            while(!Thread.interrupted()) { // 인터럽트가 발생하면 인터럽트 플래그를 초기화하고 true를 반환한다.
+                counter.incrementAndGet();
+            }
+            Thread.currentThread().interrupt(); // 인터럽트 플래그를 다시 설정한다. (외부에 인터럽트에 반응 했음을 알림)
+        });
+        thread.start();
+
+        // When: 쓰레드 인터럽트
+        thread.interrupt();
+
+        // Then: 쓰레드는 인터럽트 되고, 실행을 중료한다.
+        await().atMost(1, TimeUnit.SECONDS)
+                .until(() -> thread.isInterrupted() &&
+                        !thread.isAlive() &&
+                        !runningThread(counter, 100)
+                );
+    }
+
+    /**
+     * 작업 쓰레드가 실행을 이어가고 있는지 판단합니다.
+     *
+     * 이를 위해서는 작업 쓰레드 내부에서 counter 값을 계속 증가시키고 있어야 합니다.
+     */
+    private boolean runningThread(AtomicLong counter, long checkInterval) throws InterruptedException {
+        long before = counter.get();
+        Thread.sleep(checkInterval);
+        long after = counter.get();
+        return before != after;
     }
 }
