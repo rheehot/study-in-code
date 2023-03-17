@@ -1,4 +1,4 @@
-package tech.java.type;
+package tech.java.primitiive;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
