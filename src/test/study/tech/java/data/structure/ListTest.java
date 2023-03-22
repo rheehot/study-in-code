@@ -1,4 +1,4 @@
-package tech.spring.study.data.structure;
+package tech.java.data.structure;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -35,7 +35,7 @@ public class ListTest {
         List<Position> origin = List.of(new Position(11, 22), new Position(33, 44));
         List<Position> copied = List.copyOf(origin);
 
-        Assertions.assertEquals(origin, copied);
+        Assertions.assertSame(origin, copied);
     }
 
     @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")

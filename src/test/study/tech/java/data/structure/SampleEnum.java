@@ -1,4 +1,4 @@
-package tech.spring.study.data.structure;
+package tech.java.data.structure;
 
 public enum SampleEnum {
     HI,

@@ -1,4 +1,4 @@
-package tech.spring.study.data.structure;
+package tech.java.data.structure;
 
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
