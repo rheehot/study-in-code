@@ -1,6 +1,5 @@
 package tech.java.concurrent;
 
-import code.util.SleepUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,7 +8,9 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
+import static code.util.SleepUtil.sleep;
 import static org.awaitility.Awaitility.await;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -23,10 +24,10 @@ public class CompletableFutureTest {
         void setUp() {
             futures = List.of(
                     CompletableFuture.runAsync(() -> {
-                        SleepUtil.sleep(500);
+                        sleep(500);
                     }),
                     CompletableFuture.runAsync(() -> {
-                        SleepUtil.sleep(1000);
+                        sleep(1000);
                     })
             );
         }
@@ -72,11 +73,39 @@ public class CompletableFutureTest {
          */
         @Test
         void getThrowException() throws Exception {
-            assertThrows(ExecutionException.class, () -> {
-                CompletableFuture.runAsync(() -> {
-                    throw new RuntimeException("Hello Exception");
-                }).get();
+            CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                throw new RuntimeException("Hello Exception");
             });
+
+            assertThrows(ExecutionException.class, future::get);
+            try {
+                future.get();
+            } catch (ExecutionException e) {
+                assertSame(RuntimeException.class, e.getCause().getClass());
+            }
+        }
+
+        /**
+         * completeExceptionally()로 null을 전달하면 NullPointException이 발생하고 작업은 미완료 상태로 남게 됩니다.
+         */
+        @Test
+        void completeExceptionallyWithNull() {
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                try {
+                    // When: completeExceptionally()로 null을 전달
+                    future.completeExceptionally(null); // will throw NullPointException
+                } catch (Exception e) {
+                    // Then: NullPointException이 발생
+                    assertSame(NullPointerException.class, e.getClass());
+                }
+            });
+
+            // Then: 작업은 미완료 상태로 남게 됩니다.
+            assertThrows(TimeoutException.class, () -> future.get(1000, TimeUnit.MILLISECONDS));
+            assertFalse(future.isCompletedExceptionally());
+            assertFalse(future.isDone());
+            assertFalse(future.isCancelled());
         }
     }
 }
