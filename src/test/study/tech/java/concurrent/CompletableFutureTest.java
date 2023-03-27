@@ -18,16 +18,18 @@ public class CompletableFutureTest {
 
     @Nested
     class AllOf {
-        List<CompletableFuture<Void>> futures;
+        List<CompletableFuture<Boolean>> futures;
 
         @BeforeEach
         void setUp() {
             futures = List.of(
-                    CompletableFuture.runAsync(() -> {
+                    CompletableFuture.supplyAsync(() -> {
                         sleep(500);
+                        return true;
                     }),
-                    CompletableFuture.runAsync(() -> {
+                    CompletableFuture.supplyAsync(() -> {
                         sleep(1000);
+                        return false;
                     })
             );
         }
@@ -48,6 +50,20 @@ public class CompletableFutureTest {
         void combineFutureByStream() {
             await().atLeast(900,TimeUnit.MILLISECONDS)
                     .until(() -> futures.stream().allMatch(CompletableFuture::isDone));
+        }
+
+        /**
+         * Steam API를 활용해 여러 Future의 결과를 하나로 조합합니다.
+         */
+        @Test
+        void combineFutureResults() {
+            await().during(2000,TimeUnit.MILLISECONDS)
+                    .until(() -> {
+                        return !futures.stream()
+                                .map(future -> future.join())
+                                .reduce((a, b) -> a && b)
+                                .orElse(false);
+                    });
         }
     }
 
