@@ -10,23 +10,41 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.*;
+
 @Slf4j
 public class ListTest {
+
+    @Test
+    @DisplayName("List.toArray(T[]::new) 메서드를 통해 배열을 생성합니다.")
+    void toArray() {
+        // Given
+        List<String> origin = List.of("a", "b", "c");
+
+        // When
+        String[] transformed = origin.toArray(String[]::new);
+
+        // Then
+        assertEquals("a", transformed[0]);
+        assertEquals("b", transformed[1]);
+        assertEquals("c", transformed[2]);
+        assertEquals(3, transformed.length);
+    }
 
     @Test
     @DisplayName("List.of() 메서드에 의해 생성된 List는 불변입니다.")
     void listOfMakeImmutableList() {
         List<String> list = List.of("a", "b", "c");
         //noinspection ConstantConditions
-        Assertions.assertThrows(UnsupportedOperationException.class, () -> list.add("d"));
+        assertThrows(UnsupportedOperationException.class, () -> list.add("d"));
     }
 
     @Test
     @DisplayName("불변리스트이지만 각 항목이 가지는 값은 변경할 수 있습니다.")
     void immutableListButItemChange() {
         List<Position> list = List.of(new Position(11, 22), new Position(33, 44));
-        Assertions.assertDoesNotThrow(() -> list.get(0).setAzimuth(55));
-        Assertions.assertEquals(55, list.get(0).getAzimuth());
+        assertDoesNotThrow(() -> list.get(0).setAzimuth(55));
+        assertEquals(55, list.get(0).getAzimuth());
     }
 
     @Test
@@ -35,7 +53,7 @@ public class ListTest {
         List<Position> origin = List.of(new Position(11, 22), new Position(33, 44));
         List<Position> copied = List.copyOf(origin);
 
-        Assertions.assertSame(origin, copied);
+        assertSame(origin, copied);
     }
 
     @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
@@ -54,7 +72,7 @@ public class ListTest {
         copied.get(0).setAzimuth(55);
 
         // Then
-        Assertions.assertEquals(55, origin.get(0).getAzimuth());
+        assertEquals(55, origin.get(0).getAzimuth());
     }
 
     @Test
@@ -73,8 +91,8 @@ public class ListTest {
         copied.get(0).setAzimuth(55);
 
         // Then
-        Assertions.assertNotEquals(55, origin.get(0).getAzimuth());
-        Assertions.assertEquals(11, origin.get(0).getAzimuth());
+        assertNotEquals(55, origin.get(0).getAzimuth());
+        assertEquals(11, origin.get(0).getAzimuth());
     }
 
     @Getter
