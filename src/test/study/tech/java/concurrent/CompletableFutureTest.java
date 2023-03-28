@@ -208,5 +208,24 @@ public class CompletableFutureTest {
 
             fail();
         }
+
+        /**
+         * complete() 또는 completeExceptionally() 메서드 중 하나로 결과를 완료할 수 있습니다.
+         */
+        @Test
+        void canOnlyOneCompleteWayAvailable() throws Exception {
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                // When: complete() 호출 후, completeExceptionally() 한 번도 호출
+                future.complete(false);
+                future.completeExceptionally(new IllegalStateException());
+            });
+
+            // Then: 뒤에 호출된 completeExceptionally()는 무시되고, complete()에 의한 완료 결과가 반환된다.
+            assertFalse(future.get());
+            assertTrue(future.isDone());
+            assertFalse(future.isCompletedExceptionally());
+            assertFalse(future.isCancelled());
+        }
     }
 }
