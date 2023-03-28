@@ -17,6 +17,64 @@ import static org.junit.jupiter.api.Assertions.*;
 public class CompletableFutureTest {
 
     @Nested
+    class Chain {
+        @Test
+        void thenApply() throws Exception {
+            var future = CompletableFuture.supplyAsync(() -> {
+                sleep(1000);
+                return false;
+            }).thenApply(result -> {
+                assertFalse(result);
+                sleep(1000);
+                return 1;
+            });
+
+            await().atLeast(1900, TimeUnit.MILLISECONDS)
+                    .atMost(2100, TimeUnit.MILLISECONDS)
+                    .ignoreException(TimeoutException.class)
+                    .until(() -> future.get(0, TimeUnit.MILLISECONDS) == 1);
+        }
+
+        @Test
+        void thenCompose() {
+            var future = CompletableFuture.supplyAsync(() -> {
+                sleep(1000);
+                return false;
+            }).thenCompose(result -> {
+                assertFalse(result);
+                sleep(1000);
+                return CompletableFuture.supplyAsync(() -> 1);
+            });
+
+            await().atLeast(1900, TimeUnit.MILLISECONDS)
+                    .atMost(2100, TimeUnit.MILLISECONDS)
+                    .ignoreException(TimeoutException.class)
+                    .until(() -> future.get(0, TimeUnit.MILLISECONDS) == 1);
+        }
+
+        @Test
+        void thenCombine() {
+            var future = CompletableFuture.supplyAsync(() -> {
+                sleep(1000);
+                return false;
+            }).thenCombine(CompletableFuture.supplyAsync(() -> {
+                sleep(1000);
+                return 1;
+            }), (a, b) -> {
+                assertFalse(a);
+                assertEquals(1, b);
+                sleep(1000);
+                return a + b.toString();
+            });
+
+            await().atLeast(1900, TimeUnit.MILLISECONDS)
+                    .atMost(2100, TimeUnit.MILLISECONDS)
+                    .ignoreException(TimeoutException.class)
+                    .until(() -> "false1".equals(future.get(0, TimeUnit.MILLISECONDS)));
+        }
+    }
+
+    @Nested
     class AllOf {
         List<CompletableFuture<Boolean>> futures;
 
