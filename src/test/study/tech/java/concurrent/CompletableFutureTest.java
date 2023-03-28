@@ -181,5 +181,32 @@ public class CompletableFutureTest {
             assertFalse(future.isDone());
             assertFalse(future.isCancelled());
         }
+
+        /**
+         * completeExceptionally()로 예외를 전달하면 작업은 완료 상태가 되고, get() 메서드 호출 시 예외가 발생합니다.
+         */
+        @Test
+        void completeExceptionally() throws InterruptedException {
+            CompletableFuture<Boolean> future = new CompletableFuture<>();
+            CompletableFuture.runAsync(() -> {
+                // When: completeExceptionally()로 IllegalStateExceptiond 예외 전달
+                future.completeExceptionally(new IllegalStateException());
+            });
+
+            // Then: get() 메서드 호출 시 IllegalStateException 예외를 원인으로 가지는 ExecutionException 예외가 발생하고
+            //       작업은 완료 상태가 된다.
+            assertThrows(ExecutionException.class, () -> future.get());
+            try {
+                future.get();
+            } catch (Exception e) {
+                assertSame(IllegalStateException.class, e.getCause().getClass());
+                assertTrue(future.isCompletedExceptionally());
+                assertTrue(future.isDone());
+                assertFalse(future.isCancelled());
+                return;
+            }
+
+            fail();
+        }
     }
 }
