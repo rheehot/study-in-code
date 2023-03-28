@@ -1,6 +1,5 @@
 package tech.java.concurrent;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -76,11 +75,12 @@ public class CompletableFutureTest {
 
     @Nested
     class AllOf {
-        List<CompletableFuture<Boolean>> futures;
-
-        @BeforeEach
-        void setUp() {
-            futures = List.of(
+        /**
+         * CompletableFuture allOf()를 사용해 여러 개의 비동기 작업 완료를 기다립니다.
+         */
+        @Test
+        void combineFutureByCompletable() {
+            List<CompletableFuture<Boolean>> futures = List.of(
                     CompletableFuture.supplyAsync(() -> {
                         sleep(500);
                         return true;
@@ -90,13 +90,7 @@ public class CompletableFutureTest {
                         return false;
                     })
             );
-        }
 
-        /**
-         * CompletableFuture allOf()를 사용해 여러 개의 비동기 작업 완료를 기다립니다.
-         */
-        @Test
-        void combineFutureByCompletable() {
             await().atLeast(900, TimeUnit.MILLISECONDS)
                     .until(() -> CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).isDone());
         }
@@ -106,6 +100,17 @@ public class CompletableFutureTest {
          */
         @Test
         void combineFutureByStream() {
+            List<CompletableFuture<Boolean>> futures = List.of(
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(500);
+                        return true;
+                    }),
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(1000);
+                        return false;
+                    })
+            );
+
             await().atLeast(900,TimeUnit.MILLISECONDS)
                     .until(() -> futures.stream().allMatch(CompletableFuture::isDone));
         }
@@ -115,6 +120,17 @@ public class CompletableFutureTest {
          */
         @Test
         void combineFutureResults() {
+            List<CompletableFuture<Boolean>> futures = List.of(
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(500);
+                        return true;
+                    }),
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(1000);
+                        return false;
+                    })
+            );
+
             await().during(2000,TimeUnit.MILLISECONDS)
                     .until(() -> {
                         return !futures.stream()
@@ -122,6 +138,30 @@ public class CompletableFutureTest {
                                 .reduce((a, b) -> a && b)
                                 .orElse(false);
                     });
+        }
+
+        /**
+         * 여러 비동기 작업들의 결과를 하나의 CompletableFuture로 대기 중에 하나의 비동기 작업에서 런타임 예외가 발생하면
+         * 대기 중이던 CompletableFuture에서 다시 예외가 던져집니다.
+         */
+        @Test
+        void oneThrowException() throws Exception {
+            List<CompletableFuture<Boolean>> futures = List.of(
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(500);
+                        return true;
+                    }),
+                    CompletableFuture.supplyAsync(() -> {
+                        sleep(1000);
+                        throw new RuntimeException("Hello Exception");
+                    })
+            );
+
+            try {
+                CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
+            } catch (ExecutionException e) {
+                assertSame(RuntimeException.class, e.getCause().getClass());
+            }
         }
     }
 
