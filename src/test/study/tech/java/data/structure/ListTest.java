@@ -48,12 +48,24 @@ public class ListTest {
     }
 
     @Test
-    @DisplayName("List.copyOf() 메서드에 Immutable List를 넘기면 같은 인스턴스 List를 반환합니다.")
+    @DisplayName("List.copyOf() 메서드에 불변 리스트를 넘기면 같은 인스턴스를 반환합니다.")
     void copyOfImmutableList() {
-        List<Position> origin = List.of(new Position(11, 22), new Position(33, 44));
-        List<Position> copied = List.copyOf(origin);
+        List<Position> immutable = List.of(new Position(11, 22), new Position(33, 44));
+        List<Position> sameInstance = List.copyOf(immutable);
 
-        assertSame(origin, copied);
+        assertSame(immutable, sameInstance);
+    }
+
+    @Test
+    @DisplayName("List.copyOf() 메서드에 변경가능한 리스트를 넘기면 불변 리스트를 반환합니다.")
+    void copyOfMutableList() {
+        List<Position> mutable = new ArrayList<>();
+        mutable.add(new Position(11, 22));
+        mutable.add(new Position(33, 44));
+        List<Position> immutable = List.copyOf(mutable);
+
+        assertNotSame(mutable, immutable);
+        assertThrows(UnsupportedOperationException.class, () -> immutable.add(new Position(55, 66)));
     }
 
     @SuppressWarnings("CollectionAddAllCanBeReplacedWithConstructor")
