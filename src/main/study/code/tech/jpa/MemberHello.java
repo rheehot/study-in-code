@@ -13,8 +13,8 @@ import javax.persistence.Table;
 @Setter
 @ToString
 @Entity
-@Table(name = "MEMBER")
-public class Member {
+@Table(name = "MEMBER_HELLO")
+public class MemberHello {
     @Id
     @Column(name = "ID")
     private String id;

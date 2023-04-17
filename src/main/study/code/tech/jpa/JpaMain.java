@@ -26,7 +26,7 @@ public class JpaMain {
 
     private static void logic(EntityManager em) {
         String id = "id1";
-        Member member = new Member();
+        MemberHello member = new MemberHello();
         member.setId(id);
         member.setUsername("Jsing");
         member.setAge(30);
@@ -35,10 +35,10 @@ public class JpaMain {
 
         member.setAge(20);
 
-        Member findMember = em.find(Member.class, id);
+        MemberHello findMember = em.find(MemberHello.class, id);
         System.out.println(findMember);
 
-        List<Member> members = em.createQuery("select m from Member m", Member.class).getResultList();
+        List<MemberHello> members = em.createQuery("select m from MEMBER_HELLO m", MemberHello.class).getResultList();
         System.out.println(members);
 
         em.remove(member);
